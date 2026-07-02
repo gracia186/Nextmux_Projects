@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Http\Requests\Auth\EnableMfaRequest;
+use App\Http\Requests\Auth\UpdateMfaSecretRequest;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\FileStorageService;
 use Illuminate\Http\JsonResponse;

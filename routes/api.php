@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AdminAuditLogController;
+use App\Http\Controllers\Api\Admin\AdminInternshipController;
 use App\Http\Controllers\Api\Admin\AdminStatsController;
 use App\Http\Controllers\Api\Admin\AdminUserController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\InternshipFeedbackController;
 use App\Http\Controllers\Api\MeController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\ReportController;
@@ -30,9 +33,15 @@ Route::prefix('v1')->group(function () {
             Route::get('/', 'show');
             Route::patch('/', 'update');
             Route::post('avatar', 'uploadAvatar');
+            Route::post('mfa', 'enableMfa');
+            Route::patch('mfa/secret', 'updateMfaSecret');
             Route::get('notifications', 'notifications');
             Route::post('notifications/read', 'markNotificationsRead');
             Route::get('data-export', 'dataExport');
+        });
+
+        Route::prefix('feedback')->controller(InternshipFeedbackController::class)->group(function () {
+            Route::post('/', 'store');
         });
 
         Route::prefix('attendance')->controller(AttendanceController::class)->group(function () {
@@ -103,6 +112,14 @@ Route::prefix('v1')->group(function () {
                 Route::post('{id}/terminate', 'terminate');
                 Route::delete('{id}/purge', 'purge');
                 Route::post('{id}/resend-invitation', 'resendInvitation');
+            });
+
+            Route::prefix('internships')->controller(AdminInternshipController::class)->group(function () {
+                Route::patch('{internId}/dates', 'updateDates');
+            });
+
+            Route::prefix('audit-logs')->controller(AdminAuditLogController::class)->group(function () {
+                Route::get('/', 'index');
             });
 
             Route::prefix('stats')->controller(AdminStatsController::class)->group(function () {

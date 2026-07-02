@@ -17,8 +17,12 @@ class DocumentPolicy
         return $user->isAdmin() || $document->intern_id === $user->id;
     }
 
-    public function validate(User $user, Document $document): bool
+    public function validate(User $user, Document $document = null): bool
     {
+        if ($document === null) {
+            return $user->isAdmin();
+        }
+
         return $user->isAdmin();
     }
 
