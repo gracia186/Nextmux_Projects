@@ -1,0 +1,96 @@
+<?php
+
+namespace App\Http\Controllers\Api\Auth;
+
+use App\Actions\Auth\AcceptInvitationAction;
+use App\Actions\Auth\LoginAction;
+use App\Actions\Auth\LogoutAction;
+use App\DTOs\AcceptInvitationData;
+use App\DTOs\LoginData;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\AcceptInvitationRequest;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Resources\UserResource;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\RateLimiter;
+
+class AuthController extends Controller
+{
+    public function __construct(
+        private LoginAction $loginAction,
+        private LogoutAction $logoutAction,
+        private AcceptInvitationAction $acceptInvitationAction,
+    ) {
+    }
+
+    public function login(LoginRequest $request): JsonResponse
+    {
+        $throttleKey = 'login:'.$request->input('email').'|'.$request->ip();
+
+        $user = $this->loginAction->execute(
+            LoginData::fromArray($request->validated()),
+            $throttleKey
+        );
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'user' => new UserResource($user),
+                'token' => $token,
+            ],
+        ]);
+    }
+
+    public function logout(): JsonResponse
+    {
+        $this->logoutAction->execute(auth()->user());
+
+        return response()->json([
+            'success' => true,
+            'data' => ['message' => 'Déconnexion réussie.'],
+        ]);
+    }
+
+    public function acceptInvitation(AcceptInvitationRequest $request): JsonResponse
+    {
+        $user = $this->acceptInvitationAction->execute(
+            AcceptInvitationData::fromArray($request->validated())
+        );
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'message' => 'Compte activé avec succès. Vous pouvez maintenant vous connecter.',
+                'user' => new UserResource($user),
+            ],
+        ]);
+    }
+
+    public function checkInvitation(string $token): JsonResponse
+    {
+        $hashedToken = hash('sha256', $token);
+
+        $user = app(\App\Repositories\Contracts\UserRepositoryInterface::class)
+            ->findByInvitationToken($hashedToken);
+
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'error' => [
+                    'code' => 'INVALID_TOKEN',
+                    'message' => 'Ce lien d\'invitation est invalide ou expiré.',
+                ],
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
+        ]);
+    }
+}

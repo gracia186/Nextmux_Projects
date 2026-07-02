@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\Event;
+use App\Models\User;
+
+class EventPolicy
+{
+    public function publish(User $user): bool
+    {
+        return $user->isMentor() || $user->isAdmin();
+    }
+
+    public function update(User $user, Event $event): bool
+    {
+        return $user->isAdmin() || $event->author_id === $user->id;
+    }
+
+    public function delete(User $user, Event $event): bool
+    {
+        return $this->update($user, $event);
+    }
+}
