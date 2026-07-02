@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\AuditLog;
+use App\Models\AuditLog as AuditLogModel;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -47,7 +47,7 @@ class AuditLog
     private function log(Request $request, Response $response): void
     {
         try {
-            AuditLog::create([
+            AuditLogModel::create([
                 'id' => (string) Str::uuid(),
                 'user_id' => $request->user()->id,
                 'action' => $request->method().'.'.$request->path(),
