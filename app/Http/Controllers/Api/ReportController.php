@@ -15,6 +15,7 @@ use App\Repositories\Contracts\InternshipRepositoryInterface;
 use App\Repositories\Contracts\ReportRepositoryInterface;
 use App\Services\FileStorageService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 
 class ReportController extends Controller
 {
@@ -59,7 +60,16 @@ class ReportController extends Controller
 
     public function index(): JsonResponse
     {
-        $reports = $this->getReportHistoryAction->execute(auth()->id());
+        $user = auth()->user();
+        
+        // Admin voit tous les rapports, mentor voit ceux de ses stagiaires, intern voit les siens
+        if ($user->isAdmin()) {
+            $reports = $this->reports->paginate(15);
+        } elseif ($user->isMentor()) {
+            $reports = $this->reports->pendingForMentor($user->id);
+        } else {
+            $reports = $this->getReportHistoryAction->execute($user->id, 15);
+        }
 
         return response()->json([
             'success' => true,
@@ -74,7 +84,13 @@ class ReportController extends Controller
 
     public function pending(): JsonResponse
     {
-        $reports = $this->reports->pendingForMentor(auth()->id());
+        if (! auth()->user()->isAdmin() && ! auth()->user()->isMentor()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $reports = auth()->user()->isAdmin() 
+            ? $this->reports->pending() 
+            : $this->reports->pendingForMentor(auth()->id());
 
         return response()->json([
             'success' => true,
@@ -86,7 +102,7 @@ class ReportController extends Controller
     {
         $report = $this->reports->find($id);
 
-        $this->authorize('view', $report);
+        Gate::authorize('view', $report);
 
         return response()->json([
             'success' => true,
@@ -94,11 +110,15 @@ class ReportController extends Controller
         ]);
     }
 
-    public function validate(ValidateReportRequest $request, string $id): JsonResponse
+    /**
+     * Valider ou rejeter un rapport
+     * Renommé de validate() pour éviter conflit avec la méthode parent
+     */
+    public function validateReport(ValidateReportRequest $request, string $id): JsonResponse
     {
         $report = $this->reports->find($id);
 
-        $this->authorize('validate', $report);
+        Gate::authorize('validate', $report);
 
         $data = ValidateReportData::fromArray(array_merge($request->validated(), [
             'validated_by' => auth()->id(),
@@ -116,7 +136,7 @@ class ReportController extends Controller
     {
         $report = $this->reports->find($id);
 
-        $this->authorize('download', $report);
+        Gate::authorize('download', $report);
 
         $url = $this->fileStorage->temporaryUrl($report->file_path, 15);
 

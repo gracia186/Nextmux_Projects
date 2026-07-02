@@ -34,13 +34,27 @@ class ReportRepository implements ReportRepositoryInterface
             ->paginate($perPage);
     }
 
+    public function paginate(int $perPage = 15): LengthAwarePaginator
+    {
+        return Report::orderBy('created_at', 'desc')
+            ->paginate($perPage);
+    }
+
+    public function pending(): Collection
+    {
+        return Report::where('status', ReportStatus::Pending->value)
+            ->with(['intern', 'internship'])
+            ->orderBy('created_at', 'asc')
+            ->get();
+    }
+
     public function pendingForMentor(string $mentorId): Collection
     {
         return Report::whereHas('internship', function ($query) use ($mentorId) {
             $query->where('mentor_id', $mentorId);
         })
             ->where('status', ReportStatus::Pending->value)
-            ->with('intern')
+            ->with(['intern', 'internship'])
             ->orderBy('created_at', 'asc')
             ->get();
     }

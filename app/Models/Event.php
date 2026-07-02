@@ -16,6 +16,7 @@ class Event extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
+        'id',
         'author_id',
         'title',
         'content',

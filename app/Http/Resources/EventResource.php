@@ -14,8 +14,8 @@ class EventResource extends JsonResource
             'author' => new UserResource($this->whenLoaded('author')),
             'title' => $this->title,
             'content' => $this->content,
-            'audience' => $this->audience->value,
-            'is_pinned' => $this->is_pinned,
+            'audience' => $this->audience,
+            'is_pinned' => (bool) $this->is_pinned,
             'published_at' => $this->published_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),
         ];

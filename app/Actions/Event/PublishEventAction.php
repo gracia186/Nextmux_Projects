@@ -18,11 +18,11 @@ class PublishEventAction
     {
         return $this->events->create([
             'id' => (string) Str::uuid(),
-            'author_id' => $data->authorId,
+            'author_id' => $data->author_id,
             'title' => $data->title,
             'content' => $data->content,
-            'audience' => $data->audience->value,
-            'is_pinned' => $data->isPinned,
+            'audience' => $data->audience,
+            'is_pinned' => $data->is_pinned ?? false,
             'published_at' => now(),
         ]);
     }

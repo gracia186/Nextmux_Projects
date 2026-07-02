@@ -16,6 +16,7 @@ use App\Http\Resources\ProjectResource;
 use App\Repositories\Contracts\ProjectRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate; // ← AJOUT
 
 class ProjectController extends Controller
 {
@@ -62,7 +63,7 @@ class ProjectController extends Controller
     {
         $project = $this->projects->find($id);
 
-        $this->authorize('view', $project);
+        Gate::authorize('view', $project); // ← REMPLACÉ
 
         return response()->json([
             'success' => true,
@@ -74,7 +75,7 @@ class ProjectController extends Controller
     {
         $project = $this->projects->find($id);
 
-        $this->authorize('update', $project);
+        Gate::authorize('update', $project); // ← REMPLACÉ
 
         $validated = $request->validate([
             'title' => ['sometimes', 'string', 'max:255'],
@@ -96,7 +97,7 @@ class ProjectController extends Controller
     {
         $project = $this->projects->find($id);
 
-        $this->authorize('assign', $project);
+        Gate::authorize('assign', $project); // ← REMPLACÉ
 
         $updated = $this->assignProjectAction->execute(
             $project,
@@ -113,7 +114,7 @@ class ProjectController extends Controller
     {
         $project = $this->projects->find($id);
 
-        $this->authorize('assign', $project);
+        Gate::authorize('assign', $project); // ← REMPLACÉ
 
         $project->interns()->detach($internId);
 
@@ -127,7 +128,7 @@ class ProjectController extends Controller
     {
         $project = $this->projects->find($id);
 
-        $this->authorize('update', $project);
+        Gate::authorize('update', $project); // ← REMPLACÉ
 
         $validated = $request->validate([
             'progress' => ['required', 'integer', 'min:0', 'max:100'],
@@ -145,7 +146,7 @@ class ProjectController extends Controller
     {
         $project = $this->projects->find($id);
 
-        $this->authorize('evaluate', $project);
+        Gate::authorize('evaluate', $project); // ← REMPLACÉ
 
         $data = EvaluateInternData::fromArray(array_merge($request->validated(), [
             'intern_id' => $internId,

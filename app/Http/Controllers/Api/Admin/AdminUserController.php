@@ -18,6 +18,7 @@ use App\Repositories\Contracts\InternshipRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class AdminUserController extends Controller
 {
@@ -32,7 +33,7 @@ class AdminUserController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $this->authorize('manage', \App\Models\User::class);
+        Gate::authorize('manage', \App\Models\User::class);
 
         $users = $this->users->paginate(15, $request->only(['role', 'status', 'search']));
 
@@ -50,7 +51,7 @@ class AdminUserController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $this->authorize('manage', \App\Models\User::class);
+        Gate::authorize('manage', \App\Models\User::class);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -92,7 +93,7 @@ class AdminUserController extends Controller
 
     public function show(string $id): JsonResponse
     {
-        $this->authorize('manage', \App\Models\User::class);
+        Gate::authorize('manage', \App\Models\User::class);
 
         $user = $this->users->find($id);
 
@@ -104,7 +105,7 @@ class AdminUserController extends Controller
 
     public function update(Request $request, string $id): JsonResponse
     {
-        $this->authorize('manage', \App\Models\User::class);
+        Gate::authorize('manage', \App\Models\User::class);
 
         $user = $this->users->find($id);
 
@@ -123,7 +124,7 @@ class AdminUserController extends Controller
 
     public function destroy(string $id): JsonResponse
     {
-        $this->authorize('manage', \App\Models\User::class);
+        Gate::authorize('manage', \App\Models\User::class);
 
         $user = $this->users->find($id);
 
@@ -138,7 +139,7 @@ class AdminUserController extends Controller
 
     public function assignMentor(Request $request, string $id): JsonResponse
     {
-        $this->authorize('manage', \App\Models\User::class);
+        Gate::authorize('manage', \App\Models\User::class);
 
         $validated = $request->validate([
             'mentor_id' => ['required', 'uuid', 'exists:users,id'],
@@ -156,7 +157,7 @@ class AdminUserController extends Controller
 
     public function terminate(Request $request, string $id): JsonResponse
     {
-        $this->authorize('manage', \App\Models\User::class);
+        Gate::authorize('manage', \App\Models\User::class);
 
         $validated = $request->validate([
             'reason' => ['required', 'string', 'max:1000'],
@@ -180,7 +181,7 @@ class AdminUserController extends Controller
 
     public function purge(string $id): JsonResponse
     {
-        $this->authorize('manage', \App\Models\User::class);
+        Gate::authorize('manage', \App\Models\User::class);
 
         $user = $this->users->find($id);
 
@@ -201,7 +202,7 @@ class AdminUserController extends Controller
 
     public function resendInvitation(string $id): JsonResponse
     {
-        $this->authorize('manage', \App\Models\User::class);
+        Gate::authorize('manage', \App\Models\User::class);
 
         $user = $this->users->find($id);
 

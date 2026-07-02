@@ -14,6 +14,7 @@ use App\Http\Resources\DocumentResource;
 use App\Repositories\Contracts\DocumentRepositoryInterface;
 use App\Repositories\Contracts\InternshipRepositoryInterface;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 
 class DocumentController extends Controller
 {
@@ -71,7 +72,7 @@ class DocumentController extends Controller
 
     public function pending(): JsonResponse
     {
-        $this->authorize('validate', \App\Models\Document::class);
+        Gate::authorize('validate', \App\Models\Document::class);
 
         $documents = $this->documents->pending();
 
@@ -85,7 +86,7 @@ class DocumentController extends Controller
     {
         $document = $this->documents->find($id);
 
-        $this->authorize('validate', $document);
+        Gate::authorize('validate', $document);
 
         $updated = $this->validateDocumentAction->execute($document, auth()->id());
 
@@ -99,7 +100,7 @@ class DocumentController extends Controller
     {
         $document = $this->documents->find($id);
 
-        $this->authorize('validate', $document);
+        Gate::authorize('validate', $document);
 
         $updated = $this->validateDocumentAction->reject(
             $document,
@@ -117,7 +118,7 @@ class DocumentController extends Controller
     {
         $document = $this->documents->find($id);
 
-        $this->authorize('download', $document);
+        Gate::authorize('download', $document);
 
         $url = $this->getSecureUrlAction->execute($document);
 

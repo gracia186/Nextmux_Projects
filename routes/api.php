@@ -48,7 +48,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/', 'index');
             Route::get('pending', 'pending');
             Route::get('{id}', 'show');
-            Route::post('{id}/validate', 'validate');
+            Route::post('{id}/validate', 'validateReport'); // ← RENOMMÉ
             Route::get('{id}/download', 'download');
         });
 
@@ -76,7 +76,7 @@ Route::prefix('v1')->group(function () {
         });
 
         Route::prefix('documents')->controller(DocumentController::class)->group(function () {
-            Route::post('request', 'store');
+            Route::post('request', 'store'); // ← AJOUTÉ store
             Route::get('/', 'index');
             Route::get('pending', 'pending');
             Route::post('{id}/approve', 'approve');

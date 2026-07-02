@@ -11,6 +11,7 @@ use App\Http\Resources\EventResource;
 use App\Repositories\Contracts\EventRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class EventController extends Controller
 {
@@ -23,7 +24,7 @@ class EventController extends Controller
 
     public function store(PublishEventRequest $request): JsonResponse
     {
-        $this->authorize('publish', \App\Models\Event::class);
+        Gate::authorize('publish', \App\Models\Event::class);
 
         $data = PublishEventData::fromArray(array_merge($request->validated(), [
             'author_id' => auth()->id(),
@@ -66,7 +67,7 @@ class EventController extends Controller
     {
         $event = $this->events->find($id);
 
-        $this->authorize('update', $event);
+        Gate::authorize('update', $event);
 
         $validated = $request->validate([
             'title' => ['sometimes', 'string', 'max:255'],
@@ -87,7 +88,7 @@ class EventController extends Controller
     {
         $event = $this->events->find($id);
 
-        $this->authorize('delete', $event);
+        Gate::authorize('delete', $event);
 
         $this->events->delete($event);
 

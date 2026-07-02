@@ -2,27 +2,36 @@
 
 namespace App\DTOs;
 
-use App\Enums\EventAudience;
-
-final readonly class PublishEventData
+class PublishEventData
 {
+    public string $author_id;
+    public string $title;
+    public string $content;
+    public string $audience;
+    public bool $is_pinned;
+
     public function __construct(
-        public string $authorId,
-        public string $title,
-        public string $content,
-        public EventAudience $audience,
-        public bool $isPinned = false,
+        string $author_id,
+        string $title,
+        string $content,
+        string $audience,
+        bool $is_pinned = false
     ) {
+        $this->author_id = $author_id;
+        $this->title = $title;
+        $this->content = $content;
+        $this->audience = $audience;
+        $this->is_pinned = $is_pinned;
     }
 
     public static function fromArray(array $data): self
     {
         return new self(
-            authorId: $data['author_id'],
+            author_id: $data['author_id'],
             title: $data['title'],
             content: $data['content'],
-            audience: EventAudience::from($data['audience']),
-            isPinned: $data['is_pinned'] ?? false,
+            audience: $data['audience'],
+            is_pinned: $data['is_pinned'] ?? false,
         );
     }
 }

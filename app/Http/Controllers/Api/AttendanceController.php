@@ -11,6 +11,7 @@ use App\Http\Resources\AttendanceResource;
 use App\Repositories\Contracts\AttendanceRepositoryInterface;
 use App\Repositories\Contracts\InternshipRepositoryInterface;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 
 class AttendanceController extends Controller
 {
@@ -63,7 +64,7 @@ class AttendanceController extends Controller
 
     public function dashboard(): JsonResponse
     {
-        $this->authorize('viewDashboard', \App\Models\Attendance::class);
+        Gate::authorize('viewDashboard', \App\Models\Attendance::class);
 
         $result = $this->getDashboardAction->execute(auth()->user());
 
@@ -90,7 +91,7 @@ class AttendanceController extends Controller
     {
         $attendance = $this->attendances->find($id);
 
-        $this->authorize('correct', $attendance);
+        Gate::authorize('correct', $attendance);
 
         $validated = $request->validate([
             'status' => ['required', \Illuminate\Validation\Rule::enum(\App\Enums\AttendanceStatus::class)],

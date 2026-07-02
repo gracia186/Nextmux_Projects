@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Services\StatsService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 
 class AdminStatsController extends Controller
 {
@@ -15,7 +16,7 @@ class AdminStatsController extends Controller
 
     public function overview(): JsonResponse
     {
-        $this->authorize('viewGlobalStats', \App\Models\User::class);
+        Gate::authorize('viewGlobalStats', \App\Models\User::class);
 
         return response()->json([
             'success' => true,
@@ -25,7 +26,7 @@ class AdminStatsController extends Controller
 
     public function attendance(): JsonResponse
     {
-        $this->authorize('viewGlobalStats', \App\Models\User::class);
+        Gate::authorize('viewGlobalStats', \App\Models\User::class);
 
         return response()->json([
             'success' => true,
@@ -35,7 +36,7 @@ class AdminStatsController extends Controller
 
     public function reports(): JsonResponse
     {
-        $this->authorize('viewGlobalStats', \App\Models\User::class);
+        Gate::authorize('viewGlobalStats', \App\Models\User::class);
 
         return response()->json([
             'success' => true,
@@ -45,7 +46,7 @@ class AdminStatsController extends Controller
 
     public function documents(): JsonResponse
     {
-        $this->authorize('viewGlobalStats', \App\Models\User::class);
+        Gate::authorize('viewGlobalStats', \App\Models\User::class);
 
         return response()->json([
             'success' => true,
