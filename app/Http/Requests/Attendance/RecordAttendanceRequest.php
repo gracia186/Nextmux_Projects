@@ -16,7 +16,7 @@ class RecordAttendanceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'date' => ['required', 'date', 'before_or_equal:today'],
+            'date' => ['sometimes', 'date', 'before_or_equal:today'],
             'status' => ['required', Rule::enum(AttendanceStatus::class)],
             'note' => ['nullable', 'string', 'max:500'],
         ];

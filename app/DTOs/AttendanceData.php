@@ -14,6 +14,8 @@ final readonly class AttendanceData
         public AttendanceStatus $status,
         public ?string $note = null,
         public ?string $recordedBy = null,
+        public ?string $arrivalTime = null,
+        public ?string $departureTime = null,
     ) {
     }
 
@@ -22,10 +24,12 @@ final readonly class AttendanceData
         return new self(
             internId: $data['intern_id'],
             internshipId: $data['internship_id'],
-            date: Carbon::parse($data['date']),
+            date: Carbon::parse($data['date'] ?? now()),
             status: AttendanceStatus::from($data['status']),
             note: $data['note'] ?? null,
             recordedBy: $data['recorded_by'] ?? null,
+            arrivalTime: $data['arrival_time'] ?? null,
+            departureTime: $data['departure_time'] ?? null,
         );
     }
 }

@@ -21,6 +21,13 @@ class InternshipRepository implements InternshipRepositoryInterface
             ->first();
     }
 
+    public function findCompletedByIntern(string $internId): ?Internship
+    {
+        return Internship::where('intern_id', $internId)
+            ->where('status', InternshipStatus::Completed->value)
+            ->first();
+    }
+
     public function create(array $data): Internship
     {
         return Internship::create($data);

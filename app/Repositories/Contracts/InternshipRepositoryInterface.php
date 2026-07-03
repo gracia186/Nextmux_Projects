@@ -11,6 +11,8 @@ interface InternshipRepositoryInterface
 
     public function findActiveByIntern(string $internId): ?Internship;
 
+    public function findCompletedByIntern(string $internId): ?Internship;
+
     public function create(array $data): Internship;
 
     public function update(Internship $internship, array $data): Internship;

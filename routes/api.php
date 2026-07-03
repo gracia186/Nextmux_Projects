@@ -49,6 +49,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/', 'history');
             Route::get('dashboard', 'dashboard');
             Route::get('{internId}', 'byIntern');
+            Route::patch('{id}/departure', 'recordDeparture');
             Route::patch('{id}', 'correct');
         });
 

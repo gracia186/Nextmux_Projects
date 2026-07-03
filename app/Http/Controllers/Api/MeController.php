@@ -99,4 +99,32 @@ class MeController extends Controller
             ],
         ]);
     }
+
+    public function enableMfa(EnableMfaRequest $request): JsonResponse
+    {
+        $user = auth()->user();
+
+        $updated = $this->users->update($user, [
+            'mfa_enabled' => $request->validated('mfa_enabled'),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => new UserResource($updated),
+        ]);
+    }
+
+    public function updateMfaSecret(UpdateMfaSecretRequest $request): JsonResponse
+    {
+        $user = auth()->user();
+
+        $updated = $this->users->update($user, [
+            'mfa_secret' => $request->validated('mfa_secret'),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => new UserResource($updated),
+        ]);
+    }
 }

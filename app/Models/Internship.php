@@ -18,6 +18,7 @@ class Internship extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
+        'id',
         'intern_id',
         'mentor_id',
         'start_date',

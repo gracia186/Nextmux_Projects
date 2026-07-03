@@ -40,6 +40,8 @@ class RecordAttendanceAction
             'status' => $data->status->value,
             'note' => $data->note,
             'recorded_by' => $data->recordedBy,
+            'arrival_time' => $data->arrivalTime,
+            'departure_time' => $data->departureTime,
         ]);
     }
 }

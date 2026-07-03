@@ -23,16 +23,26 @@ class InternshipFeedbackController extends Controller
     {
         $user = auth()->user();
 
-        $internship = $this->internships->findActiveByIntern($user->id);
+        $internship = $this->internships->findCompletedByIntern($user->id);
 
         if (! $internship) {
             return response()->json([
                 'success' => false,
                 'error' => [
-                    'code' => 'NO_ACTIVE_INTERNSHIP',
-                    'message' => 'Aucun stage actif trouvé.',
+                    'code' => 'NO_COMPLETED_INTERNSHIP',
+                    'message' => 'Aucun stage complété trouvé pour soumettre un feedback.',
                 ],
             ], 422);
+        }
+
+        if ($internship->feedback()->exists()) {
+            return response()->json([
+                'success' => false,
+                'error' => [
+                    'code' => 'FEEDBACK_ALREADY_SUBMITTED',
+                    'message' => 'Le feedback de fin de stage a déjà été soumis.',
+                ],
+            ], 409);
         }
 
         $data = InternshipFeedbackData::fromArray(array_merge($request->validated(), [

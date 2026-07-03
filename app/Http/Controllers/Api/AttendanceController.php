@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Actions\Attendance\GetAttendanceDashboardAction;
 use App\Actions\Attendance\RecordAttendanceAction;
 use App\DTOs\AttendanceData;
+use App\Enums\AttendanceStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Attendance\RecordAttendanceRequest;
 use App\Http\Resources\AttendanceResource;
@@ -39,9 +40,13 @@ class AttendanceController extends Controller
             ], 422);
         }
 
-        $data = AttendanceData::fromArray(array_merge($request->validated(), [
+        $validated = $request->validated();
+        $status = AttendanceStatus::from($validated['status']);
+
+        $data = AttendanceData::fromArray(array_merge($validated, [
             'intern_id' => $user->id,
             'internship_id' => $internship->id,
+            'arrival_time' => $status !== AttendanceStatus::Absent ? now() : null,
         ]));
 
         $attendance = $this->recordAttendanceAction->execute($data);
@@ -59,6 +64,50 @@ class AttendanceController extends Controller
         return response()->json([
             'success' => true,
             'data' => AttendanceResource::collection($attendances),
+        ]);
+    }
+
+    public function recordDeparture(string $id): JsonResponse
+    {
+        $attendance = $this->attendances->find($id);
+
+        if (! $attendance) {
+            return response()->json([
+                'success' => false,
+                'error' => [
+                    'code' => 'ATTENDANCE_NOT_FOUND',
+                    'message' => 'Enregistrement de présence introuvable.',
+                ],
+            ], 404);
+        }
+
+        if ($attendance->intern_id !== auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'error' => [
+                    'code' => 'UNAUTHORIZED',
+                    'message' => 'Vous ne pouvez pas modifier cette présence.',
+                ],
+            ], 403);
+        }
+
+        if ($attendance->departure_time !== null) {
+            return response()->json([
+                'success' => false,
+                'error' => [
+                    'code' => 'DEPARTURE_ALREADY_RECORDED',
+                    'message' => 'L’heure de départ a déjà été enregistrée.',
+                ],
+            ], 409);
+        }
+
+        $updated = $this->attendances->update($attendance, [
+            'departure_time' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => new AttendanceResource($updated),
         ]);
     }
 
