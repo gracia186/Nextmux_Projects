@@ -39,7 +39,7 @@ export const authApi = {
   // <User> indique que la réponse de l'API sera de type User.
   // -----------------------------------------------------------------
   login: (data: LoginDto) =>
-    apiClient.post<User>("/login", data),
+    apiClient.post<User>("/login/", data),
 
   // -----------------------------------------------------------------
   // Déconnecte l'utilisateur actuellement connecté.

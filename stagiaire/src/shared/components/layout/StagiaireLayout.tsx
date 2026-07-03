@@ -4,7 +4,8 @@ import {
   FileText,
   User,
   LogOut,
-  Clock10Icon
+  Clock10Icon,
+  Workflow
 } from 'lucide-react';
 
 import { Sidebar, type SidebarLink } from '@/shared/components/Sidebar';
@@ -25,6 +26,10 @@ export function StagiaireLayout() {
       label: 'Mes rapports',
       to: '/stagiaire/rapports',
       icon: FileText,
+    },{
+      label: 'Mes projets',
+      to: '/stagiaire/projets',
+      icon: Workflow,
     },
     {
       label: 'Mes présences',

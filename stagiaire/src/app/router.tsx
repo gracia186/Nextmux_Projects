@@ -20,6 +20,11 @@ import { StagiairePresencePage } from '@/pages/stagiaire/StagiairePresencePage';
 // page liée au dashboard mentor
 import { MentorStagiairePage } from '@/pages/mentor/MentorStagiairePage';
 import { MentorRapportPage } from '@/pages/mentor/MentorRapportPage';
+
+// ✅ nouvelles pages liées à la fonctionnalité "Projet"
+import { MentorProjetsPage } from '@/pages/mentor/MentorProjetsPage'; // création + liste des projets côté mentor
+import { StagiaireProjetsPage } from '@/pages/stagiaire/StagiaireProjetsPage'; // consultation des projets assignés côté stagiaire
+import { MentorProjetDetailPage } from '@/pages/mentor/MentorProjetDetailPage'; // ✅ nouvel import
 export function AppRouter() {
   return (
     <BrowserRouter>
@@ -51,8 +56,13 @@ export function AppRouter() {
         >
           <Route index element={<MentorDashboardPage />} />
           <Route path="stagiaires" element={<MentorStagiairePage />} />
-            <Route path="rapports" element={<MentorRapportPage />} />
-          </Route>
+          <Route path="rapports" element={<MentorRapportPage />} />
+          {/* ✅ nouvelle route : gestion des projets par le mentor */}
+          <Route path="projets" element={<MentorProjetsPage />} />
+          
+{/* ✅ nouvelle route détail : /mentor/projets/:id */}
+          <Route path="projets/:id" element={<MentorProjetDetailPage />} />
+        </Route>
 
         <Route
           path="/stagiaire"
@@ -65,11 +75,11 @@ export function AppRouter() {
           <Route index element={<StagiaireDashboardPage />} />
           <Route path="rapports" element={<StagiaireRapportsPage />} />
           <Route path="presences" element={<StagiairePresencePage />} />
+          {/* ✅ nouvelle route : consultation des projets assignés au stagiaire connecté */}
+          <Route path="projets" element={<StagiaireProjetsPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />
-
-        
       </Routes>
     </BrowserRouter>
   );
