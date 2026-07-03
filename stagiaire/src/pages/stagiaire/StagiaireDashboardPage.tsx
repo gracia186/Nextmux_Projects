@@ -1,14 +1,16 @@
 import { useAuthStore } from '@/features/auth/store/authStore';
-
+import { useMentors } from '@/features/mentors/hooks/useMentors';
 export function StagiaireDashboardPage() {
   const user = useAuthStore((state) => state.user);
-
+  const { data:mentorData } = useMentors(1);
+  const nom = mentorData?.data[0]?.nom ?? '—';
+  const prenom = mentorData?.data[0]?.prenom ?? 'Aucun mentor assigné pour le moment';
   return (
     <div style={styles.page}>
-      <h2 className="absolute left-1/2 -translate-x-1/2 text-xl font-semibold">
+      <h2 className="relative left-1/2 -translate-x-1/2 text-xl font-semibold">
         Bienvenue {user?.prenom} {user?.nom}
       </h2>
-      <p style={styles.subtitle}>Tableau de bord Stagiaire</p>
+      
 
       <div style={styles.grid}>
         <StatCard label="Rapports soumis" value="—" color="#3b82f6" />
@@ -18,7 +20,7 @@ export function StagiaireDashboardPage() {
 
       <div style={styles.section}>
         <h2 style={styles.sectionTitle}>Mon mentor</h2>
-        <p style={styles.empty}>Aucun mentor assigné pour le moment.</p>
+        <p style={styles.empty}>{nom} {prenom}</p>
       </div>
 
       <div style={{ ...styles.section, marginTop: '1rem' }}>

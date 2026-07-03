@@ -13,7 +13,13 @@ import { StagiaireDashboardPage } from '@/pages/stagiaire/StagiaireDashboardPage
 import { AdminStagiairesPage } from '@/pages/admin/AdminStagiairesPage';
 import { AdminMentorsPage } from '@/pages/admin/AdminMentorsPage';
 import { AdminUsersPage } from '@/pages/admin/AdminUsersPage';
+// page liée au dashboard stagiaire
+import { StagiaireRapportsPage } from '@/pages/stagiaire/StagiaireRapportPage';
+import { StagiairePresencePage } from '@/pages/stagiaire/StagiairePresencePage';
 
+// page liée au dashboard mentor
+import { MentorStagiairePage } from '@/pages/mentor/MentorStagiairePage';
+import { MentorRapportPage } from '@/pages/mentor/MentorRapportPage';
 export function AppRouter() {
   return (
     <BrowserRouter>
@@ -44,7 +50,9 @@ export function AppRouter() {
           }
         >
           <Route index element={<MentorDashboardPage />} />
-        </Route>
+          <Route path="stagiaires" element={<MentorStagiairePage />} />
+            <Route path="rapports" element={<MentorRapportPage />} />
+          </Route>
 
         <Route
           path="/stagiaire"
@@ -55,6 +63,8 @@ export function AppRouter() {
           }
         >
           <Route index element={<StagiaireDashboardPage />} />
+          <Route path="rapports" element={<StagiaireRapportsPage />} />
+          <Route path="presences" element={<StagiairePresencePage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />

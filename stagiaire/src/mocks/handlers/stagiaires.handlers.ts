@@ -4,13 +4,22 @@ import { stagiairesStore } from '../data/stagiaires.mock';
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const stagiairesHandlers = [
-  http.get(`${API_URL}/stagiaires`, () => {
-    const data = stagiairesStore.getAll();
-    return HttpResponse.json({
-      data,
-      meta: { current_page: 1, last_page: 1, total: data.length, per_page: 15 },
-    });
-  }),
+ http.get(`${API_URL}/stagiaires`, ({ request }) => {
+  const url = new URL(request.url);
+  const mentorIdParam = url.searchParams.get('mentorId');
+
+  let data = stagiairesStore.getAll();
+
+  if (mentorIdParam) {
+    const mentorId = Number(mentorIdParam);
+    data = data.filter((s) => s.mentorId === mentorId);
+  }
+
+  return HttpResponse.json({
+    data,
+    meta: { current_page: 1, last_page: 1, total: data.length, per_page: 15 },
+  });
+}),
 
   http.post(`${API_URL}/stagiaires`, async ({ request }) => {
     const body = (await request.json()) as any;

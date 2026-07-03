@@ -3,8 +3,8 @@ import { PaginatedResponse } from '@/shared/types/api.types';
 import { Stagiaire, CreateStagiaireDto, UpdateStagiaireDto } from '../types/stagiaire.types';
 
 export const stagiairesApi = {
-  getAll: (page = 1) =>
-    apiClient.get<PaginatedResponse<Stagiaire>>('/stagiaires', { params: { page } }),
+  getAll: (page = 1,mentorId?:number) =>
+    apiClient.get<PaginatedResponse<Stagiaire>>('/stagiaires', { params: { page ,mentorId} }),
 
   getById: (id: number) =>
     apiClient.get<Stagiaire>(`/stagiaires/${id}`),

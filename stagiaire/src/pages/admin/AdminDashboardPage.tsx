@@ -28,10 +28,7 @@ const totalMentors = mentorsData?.meta.total ?? '—';
       <h2 className="absolute left-1/2 -translate-x-1/2 text-xl font-semibold">
         Bienvenue {user?.prenom} {user?.nom}
       </h2>
-      {/* Sous-titre descriptif, couleur atténuée */}
-      <p className="mt-1 text-sm text-dark-400 mb-8">
-        Tableau de bord Administrateur
-      </p>
+      
 
       {/* ── Grille des cartes statistiques ── */}
       {/* 1 colonne sur mobile, 2 sur md, 4 sur lg */}

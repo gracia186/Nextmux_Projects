@@ -43,6 +43,9 @@ export const ROUTES = {
     // Page des rapports du stagiaire
     rapports: '/stagiaire/rapports',
 
+    // Page de pointage des présences du stagiaire
+    presences: '/stagiaire/presences',
+
     // Page du profil du stagiaire
     profile: '/stagiaire/profile',
   },

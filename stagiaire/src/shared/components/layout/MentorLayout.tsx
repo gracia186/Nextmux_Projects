@@ -8,6 +8,7 @@ import { useLogout } from '@/features/auth/hooks/useLogout';
   LayoutDashboard,
   Users,
   FileText,
+  LogOut
 } from "lucide-react";
 export function MentorLayout() {
   const user = useAuthStore((state) => state.user);
@@ -51,9 +52,12 @@ const links: SidebarLink[] = [
           </h2>
 
           <button
-            onClick={() => logout()}
-            className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+            onClick={() => logout()} // appel de la mutation au clic
+            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-dark-600 hover:text-red-600 transition-colors"
           >
+            {/* Icône de déconnexion */}
+            <LogOut className="w-4 h-4" />
+            {/* Texte du bouton */}
             Déconnexion
           </button>
         </header>

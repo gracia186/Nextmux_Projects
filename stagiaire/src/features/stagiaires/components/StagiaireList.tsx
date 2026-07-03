@@ -9,22 +9,28 @@ import { StagiaireForm } from "./StagiaireForm";
 import { Stagiaire } from "../types/stagiaire.types";
 import { StagiaireFormValues } from "../types/stagiaire.schema";
 import { MentorAssignSelect } from "./MentorAssignSelect";
+import { Pencil, Trash2 } from "lucide-react";
 
 const STATUT_LABELS = {
   en_cours: { label: "En cours", color: "#10b981" },
   termine: { label: "Terminé", color: "#6b7280" },
   abandonne: { label: "Abandonné", color: "#ef4444" },
 };
-
-export function StagiaireList() {
+interface StagiaireListProps {
+  mentorId?: number;
+}
+export function StagiaireList({mentorId }: StagiaireListProps) {
   const [page, setPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<Stagiaire | null>(null);
+  const isMentorView = mentorId !== undefined;
+  const { data, isLoading, isError } = useStagiaires(page, mentorId);
 
-  const { data, isLoading, isError } = useStagiaires(page);
+  
   const { mutate: create, isPending: isCreating } = useCreateStagiaire();
   const { mutate: update, isPending: isUpdating } = useUpdateStagiaire();
   const { mutate: remove } = useDeleteStagiaire();
+  
 
   const handleSubmit = (values: StagiaireFormValues) => {
     if (editing) {
@@ -61,56 +67,79 @@ export function StagiaireList() {
   return (
     <div>
       <div style={styles.header}>
-        <h2 style={styles.title}>Stagiaires ({data?.meta.total ?? 0})</h2>
-        <button style={styles.addBtn} onClick={openCreate}>
-          + Ajouter
-        </button>
+        <h2 style={styles.title}>{!isMentorView ?'Mes stagiaires' : 'stagiaires'} ({data?.meta.total ?? 0})</h2>
+        {
+          !isMentorView && (
+            <button style={styles.addBtn} onClick={openCreate}>
+              + Ajouter
+            </button>
+          )
+        }
+        
       </div>
+<table style={styles.table}>
+  <thead>
+    <tr>
+      {(isMentorView
+        ? ["Prénom", "Nom", "Email", "Statut"]
+        : ["Prénom", "Nom", "Email", "Mentor", "Statut", "Actions"]
+      ).map((h) => (
+        <th key={h} style={styles.th}>
+          {h}
+        </th>
+      ))}
+    </tr>
+  </thead>
+  <tbody>
+    {data?.data.map((s) => (
+      <tr key={s.id} style={styles.tr}>
+        <td style={styles.td}>{s.prenom}</td>
+        <td style={styles.td}>{s.nom}</td>
+        <td style={styles.td}>{s.email}</td>
+        {!isMentorView && (
+          <td style={styles.td}>
+            <MentorAssignSelect stagiaire={s} />
+          </td>
+        )}
+        <td style={styles.td}>
+          <span
+            style={{
+              ...styles.badge,
+              color: STATUT_LABELS[s.statut].color,
+            }}>
+            {STATUT_LABELS[s.statut].label}
+          </span>
+        </td>
+        {!isMentorView && (
+          <td style={styles.td}>
+            <button
+                            onClick={() => openEdit(s)}
+                            className="p-1.5 rounded-lg text-dark-400 hover:text-primary-600 hover:bg-primary-50 transition-colors"
+                          >
+                            {/* Icône crayon */}
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          {/* Bouton de suppression : ouvre la confirmation */}
+                          <button
+                            onClick={() => handleDelete(s.id)}
+                            className="p-1.5 rounded-lg text-dark-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            {/* Icône poubelle */}
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+          </td>
+        )}
+      </tr>
+    ))}
+  </tbody>
+                  
+</table>
 
-      <table style={styles.table}>
-        <thead>
-          <tr>
-            {["Prénom", "Nom", "Email", "Mentor", "Statut", "Actions"].map(
-              (h) => (
-                <th key={h} style={styles.th}>
-                  {h}
-                </th>
-              ),
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {data?.data.map((s) => (
-            <tr key={s.id} style={styles.tr}>
-              <td style={styles.td}>{s.prenom}</td>
-              <td style={styles.td}>{s.nom}</td>
-              <td style={styles.td}>{s.email}</td>
-              <td style={styles.td}>
-                <MentorAssignSelect stagiaire={s} />
-              </td> 
-              <td style={styles.td}>
-                <span
-                  style={{
-                    ...styles.badge,
-                    color: STATUT_LABELS[s.statut].color,
-                  }}>
-                  {STATUT_LABELS[s.statut].label}
-                </span>
-              </td>
-              <td style={styles.td}>
-                <button style={styles.editBtn} onClick={() => openEdit(s)}>
-                  Modifier
-                </button>
-                <button
-                  style={styles.deleteBtn}
-                  onClick={() => handleDelete(s.id)}>
-                  Supprimer
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+{isMentorView && data?.data.length === 0 && (
+  <p style={{ padding: "1.5rem", color: "#9ca3af", textAlign: "center" }}>
+    Aucun stagiaire ne vous est assigné pour le moment.
+  </p>
+)}
 
       {/* Pagination */}
       {data && data.meta.last_page > 1 && (
@@ -163,7 +192,7 @@ const styles: Record<string, React.CSSProperties> = {
   title: { fontSize: "1.25rem", fontWeight: 700 },
   addBtn: {
     padding: "0.5rem 1.25rem",
-    background: "#3b82f6",
+    background: "linear-gradient(135deg, #78B3A6 0%, #6E9D96 40%, #556F7B 70%, #3E425D 100%)",
     color: "#fff",
     border: "none",
     borderRadius: "6px",

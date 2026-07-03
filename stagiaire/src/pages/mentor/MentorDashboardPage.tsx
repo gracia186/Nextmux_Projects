@@ -1,25 +1,22 @@
 import { useAuthStore } from '@/features/auth/store/authStore';
+import {useStagiaires} from '@/features/stagiaires/hooks/useStagiaires';
 
 export function MentorDashboardPage() {
   const user = useAuthStore((state) => state.user);
+  const {data} = useStagiaires(1, user?.id);
+  const nbStagiaires = data?.meta.total ?? 0;
 
   return (
     <div style={styles.page}>
-      <h2 className="absolute left-1/2 -translate-x-1/2 text-xl font-semibold">
-        Bienvenue {user?.prenom} {user?.nom}
-      </h2>
-      <p style={styles.subtitle}>Tableau de bord Mentor</p>
+   
 
       <div style={styles.grid}>
-        <StatCard label="Mes stagiaires" value="—" color="#3b82f6" />
+        <StatCard label="Mes stagiaires" value={String(nbStagiaires)} color="#3b82f6" />
         <StatCard label="Rapports à valider" value="—" color="#f59e0b" />
         <StatCard label="Évaluations à faire" value="—" color="#10b981" />
       </div>
 
-      <div style={styles.section}>
-        <h2 style={styles.sectionTitle}>Mes stagiaires</h2>
-        <p style={styles.empty}>Les stagiaires assignés apparaîtront ici.</p>
-      </div>
+      
     </div>
   );
 }

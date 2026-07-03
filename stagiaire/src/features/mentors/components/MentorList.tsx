@@ -6,7 +6,7 @@ import { useDeleteMentor } from '../hooks/useDeleteMentor';
 import { MentorForm } from './MentorForm';
 import { Mentor } from '../types/mentor.types';
 import { MentorFormValues } from '../types/mentor.schema';
-
+import {Pencil , Trash2} from 'lucide-react';
 export function MentorList() {
   const [page, setPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
@@ -60,8 +60,21 @@ export function MentorList() {
               <td style={styles.td}>{m.specialite}</td>
               <td style={styles.td}>{m.nbStagiaires}</td>
               <td style={styles.td}>
-                <button style={styles.editBtn} onClick={() => openEdit(m)}>Modifier</button>
-                <button style={styles.deleteBtn} onClick={() => handleDelete(m.id)}>Supprimer</button>
+                <button
+                            onClick={() => openEdit(m)}
+                            className="p-1.5 rounded-lg text-dark-400 hover:text-primary-600 hover:bg-primary-50 transition-colors"
+                          >
+                            {/* Icône crayon */}
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          {/* Bouton de suppression : ouvre la confirmation */}
+                          <button
+                            onClick={() => handleDelete(m.id)}
+                            className="p-1.5 rounded-lg text-dark-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            {/* Icône poubelle */}
+                            <Trash2 className="w-4 h-4" />
+                          </button>
               </td>
             </tr>
           ))}

@@ -101,7 +101,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '0.5rem 1.25rem',
     border: 'none',
     borderRadius: '6px',
-    background: '#3b82f6',
+    backgroundImage: 'linear-gradient(135deg, #78B3A6 0%, #6E9D96 40%, #556F7B 70%, #3E425D 100%)',
     color: '#fff',
     fontWeight: 600,
     cursor: 'pointer',
