@@ -8,6 +8,6 @@ class LogoutAction
 {
     public function execute(User $user): void
     {
-        $user->currentAccessToken()?->delete();
+        $user->tokens()->where('id', $user->currentAccessToken()->id)->delete();
     }
 }
