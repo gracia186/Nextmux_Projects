@@ -23,6 +23,9 @@ import { DemandesPage } from '@/pages/stagiaire/DemandesPages';
 // page liée au dashboard mentor
 import { MentorStagiairePage } from '@/pages/mentor/MentorStagiairePage';
 import { MentorRapportPage } from '@/pages/mentor/MentorRapportPage';
+import AdminEvenementsPage from '@/pages/admin/adminevenementspage';
+import StagiaireEvenementsPage from '@/pages/stagiaire/stagiaireevenementspage';
+import MentorEvenementsPage from '@/pages/mentor/mentorevenementspage';
 export function AppRouter() {
   return (
     <BrowserRouter>
@@ -42,7 +45,8 @@ export function AppRouter() {
           <Route path="stagiaires" element={<AdminStagiairesPage />} />
           <Route path="Mentors" element={<AdminMentorsPage />} />
           <Route path="users" element={<AdminUsersPage />} />
-        </Route>
+          <Route path="evenements" element={<AdminEvenementsPage />} />      // dans les routes admin
+         </Route>
 
         <Route
           path="/mentor"
@@ -55,7 +59,9 @@ export function AppRouter() {
           <Route index element={<MentorDashboardPage />} />
           <Route path="stagiaires" element={<MentorStagiairePage />} />
             <Route path="rapports" element={<MentorRapportPage />} />
-          </Route>
+            <Route path="evenements" element={<MentorEvenementsPage />} />     // dans les routes mentor
+            
+           </Route>
 
         <Route
           path="/stagiaire"
@@ -69,6 +75,7 @@ export function AppRouter() {
           <Route path="rapports" element={<StagiaireRapportsPage />} />
           <Route path="presences" element={<StagiairePresencePage />} />
           <Route path="demandes" element={<DemandesPage />} />
+          <Route path="evenements" element={<StagiaireEvenementsPage />} />  // dans les routes stagiaire
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />

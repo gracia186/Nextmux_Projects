@@ -8,7 +8,8 @@ import { useLogout } from '@/features/auth/hooks/useLogout';
   LayoutDashboard,
   Users,
   FileText,
-  LogOut
+  LogOut,
+  Calendar
 } from "lucide-react";
 export function MentorLayout() {
   const user = useAuthStore((state) => state.user);
@@ -32,6 +33,11 @@ const links: SidebarLink[] = [
     to: "/mentor/rapports",
     label: "Rapports",
     icon: FileText,
+  },
+  {
+    label: "Evènements",
+    to: "/mentor/evenements",
+    icon: Calendar,
   },
 ];
 

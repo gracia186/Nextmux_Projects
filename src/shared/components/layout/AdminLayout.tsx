@@ -9,14 +9,15 @@ import { ROUTES } from '@/shared/constants/routes';
 // Composant Sidebar générique créé précédemment
 import { Sidebar, type SidebarLink } from '@/shared/components/Sidebar';
 // Icônes lucide-react utilisées pour chaque lien du menu admin
-import { LayoutDashboard, Users, GraduationCap, UserCog, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, GraduationCap, UserCog, LogOut, Calendar } from 'lucide-react';
 
 // Définition des liens de la sidebar admin, en dehors du composant pour éviter de les recréer à chaque render
 const adminLinks: SidebarLink[] = [
   { to: ROUTES.admin.dashboard, label: 'Dashboard', icon: LayoutDashboard }, // lien vers le dashboard admin
   { to: ROUTES.admin.users, label: 'Utilisateurs', icon: UserCog },         // lien vers la gestion des comptes
   { to: ROUTES.admin.stagiaires, label: 'Stagiaires', icon: GraduationCap }, // lien vers la liste des stagiaires
-  { to: ROUTES.admin.mentors, label: 'Mentors', icon: Users },              // lien vers la liste des mentors
+  { to: ROUTES.admin.mentors, label: 'Mentors', icon: Users },
+  { to: ROUTES.admin.evenements, label: 'Evènements', icon: Calendar },             // lien vers la liste des mentors
 ];
 
 // Composant layout principal de l'espace admin

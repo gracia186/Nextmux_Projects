@@ -4,6 +4,7 @@ import {
   FileText,
   User,
   LogOut,
+  Calendar,
   Clock10Icon
 } from 'lucide-react';
 
@@ -35,6 +36,12 @@ export function StagiaireLayout() {
       label: 'Mes demandes',
       to: '/stagiaire/demandes',
       icon: FileText,
+    },
+    
+    {
+      label: 'Evènements',
+      to: '/stagiaire/evenements',
+      icon: Calendar,
     },
     {
       label: 'Profil',

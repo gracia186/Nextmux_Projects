@@ -19,6 +19,8 @@ export const ROUTES = {
 
     // Page de gestion des mentors
     mentors: '/admin/mentors',
+
+    evenements: '/admin/evenements'
   },
 
   // Ensemble des routes réservées au mentor
@@ -32,6 +34,7 @@ export const ROUTES = {
 
     // Liste des rapports à consulter ou commenter
     rapports: '/mentor/rapports',
+    Evènements: '/mentor/Evènements'
   },
 
   // Ensemble des routes réservées au stagiaire
