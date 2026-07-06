@@ -6,7 +6,7 @@ export default function AdminEvenementsPage() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-1">Tous les événements</h1>
-      <EvenementList modeGestion={false} />
+      <EvenementList modeGestion={true} />
     </div>
   );
 }

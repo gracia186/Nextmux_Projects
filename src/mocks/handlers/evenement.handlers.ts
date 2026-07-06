@@ -1,4 +1,4 @@
-// src/features/events/mocks/events.handlers.ts
+// src/features/Evènements/mocks/evenement.handlers.ts
 
 import { http, HttpResponse } from 'msw';
 import { mockEvenements } from '@/mocks/data/evenement.mock';
@@ -7,19 +7,20 @@ import type {
   CreateEvenementPayload,
   UpdateEvenementPayload,
 } from '@/features/Evènements/types/Evènement.types';
+
 let evenements: Evenement[] = [...mockEvenements];
 
-const BASE_URL = '/api/evenements';
+const API_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = `${API_URL}/evenements`;
 
 export const evenementsHandlers = [
   // GET /evenements
-  // - mentor : ?creePar=<sonId>  -> ses propres événements
-  // - stagiaire : ?mentorId=<idDeSonMentor> -> événements de son mentor
-  // - admin : aucun filtre -> tout voir
   http.get(BASE_URL, ({ request }) => {
     const url = new URL(request.url);
     const mentorId = url.searchParams.get('mentorId');
     const creePar = url.searchParams.get('creePar');
+    const page = Number(url.searchParams.get('page')) || 1;
+    const perPage = Number(url.searchParams.get('perPage')) || 6;
 
     let resultat = evenements;
     if (mentorId) {
@@ -28,7 +29,20 @@ export const evenementsHandlers = [
       resultat = resultat.filter((e) => e.creePar === creePar);
     }
 
-    return HttpResponse.json({ evenements: resultat });
+    const total = resultat.length;
+    const lastPage = Math.max(1, Math.ceil(total / perPage));
+    const start = (page - 1) * perPage;
+    const paginated = resultat.slice(start, start + perPage);
+
+    return HttpResponse.json({
+      evenements: paginated,
+      meta: {
+        currentPage: page,
+        lastPage,
+        perPage,
+        total,
+      },
+    });
   }),
 
   // GET /evenements/:id
@@ -40,7 +54,7 @@ export const evenementsHandlers = [
     return HttpResponse.json({ evenement });
   }),
 
-  // POST /evenements - le mentor connecté crée l'événement
+  // POST /evenements
   http.post(BASE_URL, async ({ request }) => {
     const body = (await request.json()) as CreateEvenementPayload;
     const currentMentorId = 'mentor-uuid-0001'; // à remplacer par authStore
@@ -55,7 +69,7 @@ export const evenementsHandlers = [
     return HttpResponse.json({ evenement: nouvelEvenement }, { status: 201 });
   }),
 
-  // PATCH /evenements/:id - seul le mentor créateur peut modifier
+  // PATCH /evenements/:id
   http.patch(`${BASE_URL}/:id`, async ({ params, request }) => {
     const body = (await request.json()) as UpdateEvenementPayload;
     const index = evenements.findIndex((e) => e.id === params.id);
@@ -64,7 +78,7 @@ export const evenementsHandlers = [
       return HttpResponse.json({ message: 'Événement introuvable' }, { status: 404 });
     }
 
-    const currentMentorId = 'mentor-uuid-0001'; // à remplacer par authStore
+    const currentMentorId = 'mentor-uuid-0001';
     if (evenements[index].creePar !== currentMentorId) {
       return HttpResponse.json(
         { message: 'Vous ne pouvez modifier que vos propres événements' },
@@ -76,14 +90,14 @@ export const evenementsHandlers = [
     return HttpResponse.json({ evenement: evenements[index] });
   }),
 
-  // DELETE /evenements/:id - seul le mentor créateur peut supprimer
+  // DELETE /evenements/:id
   http.delete(`${BASE_URL}/:id`, ({ params }) => {
     const index = evenements.findIndex((e) => e.id === params.id);
     if (index === -1) {
       return HttpResponse.json({ message: 'Événement introuvable' }, { status: 404 });
     }
 
-    const currentMentorId = 'mentor-uuid-0001'; // à remplacer par authStore
+    const currentMentorId = 'mentor-uuid-0001';
     if (evenements[index].creePar !== currentMentorId) {
       return HttpResponse.json(
         { message: 'Vous ne pouvez supprimer que vos propres événements' },

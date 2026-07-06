@@ -114,7 +114,8 @@ export function EvenementForm({ evenementExistant, onSuccess, onCancel }: Evenem
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-50"
+            className="px-4 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-50 text-white"
+            style={{ backgroundImage: 'linear-gradient(135deg, #78B3A6 0%, #6E9D96 40%, #556F7B 70%, #3E425D 100%)' }}
           >
             Annuler
           </button>
@@ -123,6 +124,7 @@ export function EvenementForm({ evenementExistant, onSuccess, onCancel }: Evenem
           type="submit"
           disabled={isSubmitting}
           className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+          style={{ backgroundImage: 'linear-gradient(135deg, #78B3A6 0%, #6E9D96 40%, #556F7B 70%, #3E425D 100%)' }}
         >
           {isEdition ? 'Enregistrer les modifications' : "Créer l'événement"}
         </button>

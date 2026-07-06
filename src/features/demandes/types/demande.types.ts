@@ -1,5 +1,5 @@
-export type TypeDemande='attestation';'convention';
-export type StatutDemande='en_attente';'approuvée';'rejetée';
+export type TypeDemande='attestation'|'convention';
+export type StatutDemande='en_attente'|'approuvée'|'rejetée';
  export interface Demande{
     id: string;
     stagiaireId: string;

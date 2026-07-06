@@ -12,7 +12,6 @@ export interface Evenement {
   dateFin: string;
   lieu: string;
   statut: StatutEvenement;
-  // userId du mentor créateur de l'événement
   creePar: string;
 }
 
@@ -47,15 +46,24 @@ export interface GetEvenementsPayload {
   statut?: StatutEvenement;
   dateDebut?: string;
   dateFin?: string;
-  // Filtre par mentor : utilisé côté stagiaire pour ne récupérer que
-  // les événements créés par SON mentor assigné (pas tous les mentors).
-  mentorId?: string;
+  adminId?: string;
+  page?: number;
+  perPage?: number;
 }
 
 export interface EvenementResponse {
   evenement: Evenement;
 }
 
+// Métadonnées de pagination — noms alignés sur la convention camelCase du projet
+export interface PaginationMeta {
+  currentPage: number;
+  lastPage: number;
+  perPage: number;
+  total: number;
+}
+
 export interface EvenementslistResponse {
   evenements: Evenement[];
+  meta: PaginationMeta;
 }

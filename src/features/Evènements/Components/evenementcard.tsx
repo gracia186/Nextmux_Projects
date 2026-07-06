@@ -1,6 +1,8 @@
 // src/features/events/components/EvenementCard.tsx
 
 import type { Evenement } from '@/features/Evènements/types/Evènement.types';
+import { Trash2 } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 interface EvenementCardProps {
   evenement: Evenement;
@@ -43,12 +45,17 @@ export function EvenementCard({ evenement, peutModifier = false, onModifier, onS
       </div>
 
       {peutModifier && (
-        <div className="flex justify-end gap-2 mt-4 pt-3 border-t">
-          <button onClick={() => onModifier?.(evenement)} className="text-sm text-blue-600 hover:underline">
-            Modifier
+        <div className="flex justify-end gap-2 mt-4 pt-3 border-t"
+        >
+          <button onClick={() => onModifier?.(evenement)} className="text-sm text-blue-600 hover:underline"
+            style={{backgroundColor:"135deg, #78B3A6 0%, #6E9D96 40%, #556F7B 70%, #3E425D 100%"}}>
+            <Pencil className="w-4 h-4 mr-1" />
+            
           </button>
-          <button onClick={() => onSupprimer?.(evenement.id)} className="text-sm text-red-600 hover:underline">
-            Supprimer
+          <button onClick={() => onSupprimer?.(evenement.id)} className="text-sm text-red-600 hover:underline"
+            style={{backgroundColor:"135deg, #78B3A6 0%, #6E9D96 40%, #556F7B 70%, #3E425D 100%"}}>
+            <Trash2 className="w-4 h-4 mr-1" />
+            
           </button>
         </div>
       )}

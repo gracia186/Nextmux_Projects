@@ -1,35 +1,36 @@
-// src/features/events/hooks/useEvenements.ts
+// src/features/Evènements/hooks/useEvenements.ts
 
 import { useQuery } from '@tanstack/react-query';
-import { getEvenements, getEvenementById } from '@/features/Evènements/api/Evenements.api';
-import { useAuthStore } from '@/features/auth/store/authStore'; // ⚠️ adapte ce chemin
-import type { GetEvenementsPayload } from '@/features/Evènements/types/Evènement.types';
+import { getEvenements, getEvenementById } from '../api/Evenements.api';
+import { useAuthStore } from '@/features/auth/store/authStore';
+import type { GetEvenementsPayload } from '../types/Evènement.types';
 
 export function useEvenements(
-  filtresSupplementaires?: Omit<GetEvenementsPayload, 'mentorId'>
+  page: number = 1,
+  filtresSupplementaires?: Omit<GetEvenementsPayload, 'adminId'>
 ) {
   const user = useAuthStore((state) => state.user);
 
-  const filtres: GetEvenementsPayload & { creePar?: string } = {
+  const filtres: GetEvenementsPayload = {
     ...filtresSupplementaires,
+    page,
   };
 
-  if (user?.role === 'mentor') {
-    filtres.creePar = user.id;
-  } else if (user?.role === 'stagiaire') {
-    filtres.mentorId = user.mentorId; // ⚠️ adapte le nom du champ si différent
+  if (user?.role === 'stagiaire') {
+    // ⚠️ à confirmer : le champ exact sur `user` qui référence le mentor assigné
+    filtres.adminId = String(user.id);
   }
 
   return useQuery({
-    queryKey: ['evenements', filtres],
+    queryKey: ['evenements', 'list', page, filtres],
     queryFn: () => getEvenements(filtres),
-    enabled: user?.role !== 'stagiaire' || Boolean(user?.mentorId), // ⚠️ adapte le nom du champ si différent
+    placeholderData: (previousData) => previousData,
   });
 }
 
 export function useEvenementDetail(id: string | undefined) {
   return useQuery({
-    queryKey: ['evenements', id],
+    queryKey: ['evenements', 'detail', id],
     queryFn: () => getEvenementById(id as string),
     enabled: Boolean(id),
   });
