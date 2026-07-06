@@ -16,9 +16,9 @@ const STATUT_CONFIG = {
 interface RapportListProps {
   mentorId?: number;
 }
-export function RapportList({ mentorId }: RapportListProps) {
+export function RapportList({  }: RapportListProps) {
   const [showModal, setShowModal] = useState(false);
-  const { data, isLoading, isError } = useRapports(1, mentorId);
+  const { data, isLoading, isError } = useRapports(1);
   const { mutate: submit, isPending } = useSubmitRapport();
   const { mutate: remove } = useDeleteRapport();
 

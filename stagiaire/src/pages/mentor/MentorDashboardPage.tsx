@@ -1,18 +1,19 @@
 import { useAuthStore } from '@/features/auth/store/authStore';
 import {useStagiaires} from '@/features/stagiaires/hooks/useStagiaires';
-
+import { useRapports } from '@/features/rapports/hooks/useRapports';
 export function MentorDashboardPage() {
   const user = useAuthStore((state) => state.user);
   const {data} = useStagiaires(1, user?.id);
   const nbStagiaires = data?.meta.total ?? 0;
-
+  const {data: rapportsData} = useRapports(1);
+  const nbRapports = rapportsData?.meta.total ?? 1 ;
   return (
     <div style={styles.page}>
    
 
       <div style={styles.grid}>
         <StatCard label="Mes stagiaires" value={String(nbStagiaires)} color="#3b82f6" />
-        <StatCard label="Rapports à valider" value="—" color="#f59e0b" />
+        <StatCard label="Rapports à valider" value={String(nbRapports)} color="#f59e0b" />
         <StatCard label="Évaluations à faire" value="—" color="#10b981" />
       </div>
 

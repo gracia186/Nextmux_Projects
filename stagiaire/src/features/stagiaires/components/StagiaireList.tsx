@@ -16,21 +16,23 @@ const STATUT_LABELS = {
   termine: { label: "Terminé", color: "#6b7280" },
   abandonne: { label: "Abandonné", color: "#ef4444" },
 };
+
 interface StagiaireListProps {
   mentorId?: number;
+  /** true = vue mentor (lecture seule, pas de création/édition/suppression) */
+  readOnly?: boolean;
 }
-export function StagiaireList({mentorId }: StagiaireListProps) {
+
+export function StagiaireList({ mentorId, readOnly = false }: StagiaireListProps) {
   const [page, setPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<Stagiaire | null>(null);
-  const isMentorView = mentorId !== undefined;
+
   const { data, isLoading, isError } = useStagiaires(page, mentorId);
 
-  
   const { mutate: create, isPending: isCreating } = useCreateStagiaire();
   const { mutate: update, isPending: isUpdating } = useUpdateStagiaire();
   const { mutate: remove } = useDeleteStagiaire();
-  
 
   const handleSubmit = (values: StagiaireFormValues) => {
     if (editing) {
@@ -67,79 +69,77 @@ export function StagiaireList({mentorId }: StagiaireListProps) {
   return (
     <div>
       <div style={styles.header}>
-        <h2 style={styles.title}>{!isMentorView ?'Mes stagiaires' : 'stagiaires'} ({data?.meta.total ?? 0})</h2>
-        {
-          !isMentorView && (
-            <button style={styles.addBtn} onClick={openCreate}>
-              + Ajouter
-            </button>
-          )
-        }
-        
+        <h2 style={styles.title}>
+          {readOnly ? "Stagiaires" : "Les stagiaires"} ({data?.meta.total ?? 0})
+        </h2>
+        {!readOnly && (
+          <button style={styles.addBtn} onClick={openCreate}>
+            + Ajouter
+          </button>
+        )}
       </div>
-<table style={styles.table}>
-  <thead>
-    <tr>
-      {(isMentorView
-        ? ["Prénom", "Nom", "Email", "Statut"]
-        : ["Prénom", "Nom", "Email", "Mentor", "Statut", "Actions"]
-      ).map((h) => (
-        <th key={h} style={styles.th}>
-          {h}
-        </th>
-      ))}
-    </tr>
-  </thead>
-  <tbody>
-    {data?.data.map((s) => (
-      <tr key={s.id} style={styles.tr}>
-        <td style={styles.td}>{s.prenom}</td>
-        <td style={styles.td}>{s.nom}</td>
-        <td style={styles.td}>{s.email}</td>
-        {!isMentorView && (
-          <td style={styles.td}>
-            <MentorAssignSelect stagiaire={s} />
-          </td>
-        )}
-        <td style={styles.td}>
-          <span
-            style={{
-              ...styles.badge,
-              color: STATUT_LABELS[s.statut].color,
-            }}>
-            {STATUT_LABELS[s.statut].label}
-          </span>
-        </td>
-        {!isMentorView && (
-          <td style={styles.td}>
-            <button
-                            onClick={() => openEdit(s)}
-                            className="p-1.5 rounded-lg text-dark-400 hover:text-primary-600 hover:bg-primary-50 transition-colors"
-                          >
-                            {/* Icône crayon */}
-                            <Pencil className="w-4 h-4" />
-                          </button>
-                          {/* Bouton de suppression : ouvre la confirmation */}
-                          <button
-                            onClick={() => handleDelete(s.id)}
-                            className="p-1.5 rounded-lg text-dark-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                          >
-                            {/* Icône poubelle */}
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-          </td>
-        )}
-      </tr>
-    ))}
-  </tbody>
-                  
-</table>
 
-{isMentorView && data?.data.length === 0 && (
-  <p style={{ padding: "1.5rem", color: "#9ca3af", textAlign: "center" }}>
-    Aucun stagiaire ne vous est assigné pour le moment.
-  </p>
-)}
+      <table style={styles.table}>
+        <thead>
+          <tr>
+            {(readOnly
+              ? ["Prénom", "Nom", "Email", "Statut"]
+              : ["Prénom", "Nom", "Email", "Mentor", "Statut", "Actions"]
+            ).map((h) => (
+              <th key={h} style={styles.th}>
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data?.data.map((s) => (
+            <tr key={s.id} style={styles.tr}>
+              <td style={styles.td}>{s.prenom}</td>
+              <td style={styles.td}>{s.nom}</td>
+              <td style={styles.td}>{s.email}</td>
+              {!readOnly && (
+                <td style={styles.td}>
+                  <MentorAssignSelect stagiaire={s} />
+                </td>
+              )}
+              <td style={styles.td}>
+                <span
+                  style={{
+                    ...styles.badge,
+                    color: STATUT_LABELS[s.statut].color,
+                  }}>
+                  {STATUT_LABELS[s.statut].label}
+                </span>
+              </td>
+              {!readOnly && (
+                <td style={styles.td}>
+                  <button
+                    onClick={() => openEdit(s)}
+                    className="p-1.5 rounded-lg text-dark-400 hover:text-primary-600 hover:bg-primary-50 transition-colors"
+                  >
+                    {/* Icône crayon */}
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(s.id)}
+                    className="p-1.5 rounded-lg text-dark-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    {/* Icône poubelle */}
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </td>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {readOnly && data?.data.length === 0 && (
+        <p style={{ padding: "1.5rem", color: "#9ca3af", textAlign: "center" }}>
+          Aucun stagiaire ne vous est assigné pour le moment.
+        </p>
+      )}
 
       {/* Pagination */}
       {data && data.meta.last_page > 1 && (
@@ -162,8 +162,8 @@ export function StagiaireList({mentorId }: StagiaireListProps) {
         </div>
       )}
 
-      {/* Modal */}
-      {showModal && (
+      {/* Modal - jamais affiché en readOnly car openCreate/openEdit ne sont pas déclenchables */}
+      {!readOnly && showModal && (
         <div style={styles.overlay}>
           <div style={styles.modal}>
             <h3 style={styles.modalTitle}>
@@ -219,23 +219,6 @@ const styles: Record<string, React.CSSProperties> = {
   tr: { borderBottom: "1px solid #f3f4f6" },
   td: { padding: "0.75rem 1rem", fontSize: "0.9rem", color: "#111827" },
   badge: { fontWeight: 600, fontSize: "0.8rem" },
-  editBtn: {
-    marginRight: "0.5rem",
-    padding: "0.3rem 0.75rem",
-    border: "1px solid #3b82f6",
-    color: "#3b82f6",
-    background: "transparent",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
-  deleteBtn: {
-    padding: "0.3rem 0.75rem",
-    border: "1px solid #ef4444",
-    color: "#ef4444",
-    background: "transparent",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
   pagination: {
     display: "flex",
     justifyContent: "center",

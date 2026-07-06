@@ -37,6 +37,11 @@ export function StagiaireLayout() {
       icon: Clock10Icon,
     },
     {
+      label: 'Mes demandes',
+      to: '/stagiaire/demandes',
+      icon: FileText,
+    },
+    {
       label: 'Profil',
       to: '/stagiaire/profile',
       icon: User,

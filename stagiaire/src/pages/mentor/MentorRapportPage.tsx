@@ -1,7 +1,16 @@
-import { RapportList } from '@/features/rapports/components/RapportList';
-import { useAuthStore } from '@/features/auth/store/authStore';
+import { useAuthStore } from '@/features/auth/store/authStore'; // ⚠️ ajuste le chemin selon ton vrai store
+import { MentorRapportList } from '@/features/rapports/components/MentorRapportList';
 
-export const MentorRapportPage = () => {
-  const user = useAuthStore((state) => state.user);
-  return <RapportList mentorId={user?.id} />;
-};
+export function MentorRapportsPage() {
+  const mentorId = useAuthStore((state) => state.user?.id);
+
+  if (!mentorId) {
+    return <p>Chargement de vos informations...</p>;
+  }
+
+  return (
+    <div>
+      <MentorRapportList mentorId={Number(mentorId)} />
+    </div>
+  );
+}

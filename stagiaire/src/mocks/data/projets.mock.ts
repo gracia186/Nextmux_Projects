@@ -10,7 +10,7 @@ let projets: Projet[] = [
     livrableAttendu: 'Lien vers le dépôt GitHub + démo déployée',
     statut: 'en_cours',
     mentorId: '2',
-    stagiaireIds: ['1'],
+    stagiaireIds: ['1', '3'],
     createdAt: '2026-01-20T09:00:00.000Z',
   },
   {
@@ -21,7 +21,7 @@ let projets: Projet[] = [
     tache: 'Concevoir et implémenter une API REST pour les présences',
     livrableAttendu: 'Documentation API + collection Postman',
     statut: 'en_attente',
-    mentorId: '2',
+    mentorId: '3',
     stagiaireIds: [],
     createdAt: '2026-02-01T09:00:00.000Z',
   },

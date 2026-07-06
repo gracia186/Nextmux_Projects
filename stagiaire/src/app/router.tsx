@@ -13,13 +13,17 @@ import { StagiaireDashboardPage } from '@/pages/stagiaire/StagiaireDashboardPage
 import { AdminStagiairesPage } from '@/pages/admin/AdminStagiairesPage';
 import { AdminMentorsPage } from '@/pages/admin/AdminMentorsPage';
 import { AdminUsersPage } from '@/pages/admin/AdminUsersPage';
+import AdminEvenementsPage from '@/pages/admin/adminevenementspage';
 // page liée au dashboard stagiaire
 import { StagiaireRapportsPage } from '@/pages/stagiaire/StagiaireRapportPage';
 import { StagiairePresencePage } from '@/pages/stagiaire/StagiairePresencePage';
+import { DemandesPage } from '@/pages/stagiaire/DemandesPages';
+
 
 // page liée au dashboard mentor
 import { MentorStagiairePage } from '@/pages/mentor/MentorStagiairePage';
-import { MentorRapportPage } from '@/pages/mentor/MentorRapportPage';
+import { MentorRapportsPage } from '@/pages/mentor/MentorRapportPage';
+import {MentorDemandePage} from '@/pages/mentor/MentorDemandePage'
 
 // ✅ nouvelles pages liées à la fonctionnalité "Projet"
 import { MentorProjetsPage } from '@/pages/mentor/MentorProjetsPage'; // création + liste des projets côté mentor
@@ -44,6 +48,7 @@ export function AppRouter() {
           <Route path="stagiaires" element={<AdminStagiairesPage />} />
           <Route path="Mentors" element={<AdminMentorsPage />} />
           <Route path="users" element={<AdminUsersPage />} />
+          <Route path="Evènements" element={<AdminEvenementsPage />} />
         </Route>
 
         <Route
@@ -56,9 +61,10 @@ export function AppRouter() {
         >
           <Route index element={<MentorDashboardPage />} />
           <Route path="stagiaires" element={<MentorStagiairePage />} />
-          <Route path="rapports" element={<MentorRapportPage />} />
+          <Route path="rapports" element={<MentorRapportsPage />} />
           {/* ✅ nouvelle route : gestion des projets par le mentor */}
           <Route path="projets" element={<MentorProjetsPage />} />
+          <Route path="demandes" element={<MentorDemandePage />} />
           
 {/* ✅ nouvelle route détail : /mentor/projets/:id */}
           <Route path="projets/:id" element={<MentorProjetDetailPage />} />
@@ -75,6 +81,7 @@ export function AppRouter() {
           <Route index element={<StagiaireDashboardPage />} />
           <Route path="rapports" element={<StagiaireRapportsPage />} />
           <Route path="presences" element={<StagiairePresencePage />} />
+          <Route path="demandes" element={<DemandesPage />} />
           {/* ✅ nouvelle route : consultation des projets assignés au stagiaire connecté */}
           <Route path="projets" element={<StagiaireProjetsPage />} />
         </Route>

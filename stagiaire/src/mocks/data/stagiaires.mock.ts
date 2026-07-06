@@ -4,7 +4,7 @@ import { mentorsStore } from './mentors.mock';
 let stagiaires: Stagiaire[] = [
   {
     id: 1,
-    nom: 'Koffi',
+    nom: 'koffi',
     prenom: 'Jean',
     email: 'jean.koffi@email.com',
     telephone: '+229 97 00 00 01',
@@ -25,6 +25,28 @@ let stagiaires: Stagiaire[] = [
     dateFin: '2026-04-01',
     statut: 'termine',
     mentorId: null,
+  },
+  {
+    id: 4,
+    nom: 'Jack',
+    prenom: 'GUY',
+    email: 'guy.jack@email.com',
+    telephone: '+229 97 98 00 03',
+    dateDebut: '2025-01-21',
+    dateFin: '2026-04-01',
+    statut: 'en_cours',
+    mentorId:2,
+  },
+  {
+    id: 3,
+    email: 'stagiaire@test.com',
+    telephone: '+229 97 00 00 03',
+    nom: 'Bernard',
+    prenom: 'Codja',
+    dateDebut: '2026-02-01',
+    dateFin: '2026-08-01',
+    statut: 'en_cours',
+    mentorId:3,
   },
 ];
 

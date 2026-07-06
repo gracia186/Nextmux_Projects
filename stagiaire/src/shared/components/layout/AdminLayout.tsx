@@ -17,6 +17,8 @@ const adminLinks: SidebarLink[] = [
   { to: ROUTES.admin.users, label: 'Utilisateurs', icon: UserCog },         // lien vers la gestion des comptes
   { to: ROUTES.admin.stagiaires, label: 'Stagiaires', icon: GraduationCap }, // lien vers la liste des stagiaires
   { to: ROUTES.admin.mentors, label: 'Mentors', icon: Users },              // lien vers la liste des mentors
+  
+  { to: ROUTES.admin.evenements, label: 'Événements', icon: LayoutDashboard }, // lien vers la liste des événements 
 ];
 
 // Composant layout principal de l'espace admin

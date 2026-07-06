@@ -1,5 +1,5 @@
 // Import du store Zustand pour afficher le prénom de l'utilisateur connecté
-import { useAuthStore } from '@/features/auth/store/authStore';
+//import { useAuthStore } from '@/features/auth/store/authStore';
 // Import des hooks pour récupérer les vraies données depuis les mock stores
 import { useStagiaires } from '@/features/stagiaires/hooks/useStagiaires';
 import { useMentors } from '@/features/mentors/hooks/useMentors';
@@ -7,7 +7,7 @@ import { useMentors } from '@/features/mentors/hooks/useMentors';
 // Déclaration et export du composant AdminDashboardPage
 export function AdminDashboardPage() {
   // Lecture de l'utilisateur connecté depuis le store Zustand
-  const user = useAuthStore((state) => state.user);
+  //const user = useAuthStore((state) => state.user);
 
   // Récupération de la liste des stagiaires via TanStack Query
   const { data: stagiairesData } = useStagiaires();
@@ -25,9 +25,7 @@ const totalMentors = mentorsData?.meta.total ?? '—';
 
       {/* ── En-tête de bienvenue ── */}
       {/* Titre avec le prénom de l'utilisateur connecté */}
-      <h2 className="absolute left-1/2 -translate-x-1/2 text-xl font-semibold">
-        Bienvenue {user?.prenom} {user?.nom}
-      </h2>
+      
       
 
       {/* ── Grille des cartes statistiques ── */}
