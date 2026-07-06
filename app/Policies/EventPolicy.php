@@ -9,16 +9,16 @@ class EventPolicy
 {
     public function publish(User $user): bool
     {
-        return $user->isMentor() || $user->isAdmin();
+        return $user->isAdmin();
     }
 
     public function update(User $user, Event $event): bool
     {
-        return $user->isAdmin() || $event->author_id === $user->id;
+        return $user->isAdmin();
     }
 
     public function delete(User $user, Event $event): bool
     {
-        return $this->update($user, $event);
+        return $user->isAdmin();
     }
 }

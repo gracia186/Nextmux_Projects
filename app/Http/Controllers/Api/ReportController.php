@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Actions\Report\GetReportHistoryAction;
+use App\Actions\Report\HideReportAction;
 use App\Actions\Report\SubmitReportAction;
+use App\Actions\Report\UpdateReportAction;
 use App\Actions\Report\ValidateReportAction;
 use App\DTOs\ReportData;
 use App\DTOs\ValidateReportData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Report\SubmitReportRequest;
+use App\Http\Requests\Report\UpdateReportRequest;
 use App\Http\Requests\Report\ValidateReportRequest;
 use App\Http\Resources\ReportResource;
 use App\Repositories\Contracts\InternshipRepositoryInterface;
@@ -23,6 +26,8 @@ class ReportController extends Controller
         private SubmitReportAction $submitReportAction,
         private ValidateReportAction $validateReportAction,
         private GetReportHistoryAction $getReportHistoryAction,
+        private UpdateReportAction $updateReportAction,
+        private HideReportAction $hideReportAction,
         private ReportRepositoryInterface $reports,
         private InternshipRepositoryInterface $internships,
         private FileStorageService $fileStorage,
@@ -61,12 +66,11 @@ class ReportController extends Controller
     public function index(): JsonResponse
     {
         $user = auth()->user();
-        
-        // Admin voit tous les rapports, mentor voit ceux de ses stagiaires, intern voit les siens
+
         if ($user->isAdmin()) {
             $reports = $this->reports->paginate(15);
         } elseif ($user->isMentor()) {
-            $reports = $this->reports->pendingForMentor($user->id);
+            $reports = $this->reports->paginateForMentor($user->id, 15);
         } else {
             $reports = $this->getReportHistoryAction->execute($user->id, 15);
         }
@@ -88,8 +92,8 @@ class ReportController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $reports = auth()->user()->isAdmin() 
-            ? $this->reports->pending() 
+        $reports = auth()->user()->isAdmin()
+            ? $this->reports->pending()
             : $this->reports->pendingForMentor(auth()->id());
 
         return response()->json([
@@ -110,10 +114,43 @@ class ReportController extends Controller
         ]);
     }
 
-    /**
-     * Valider ou rejeter un rapport
-     * Renommé de validate() pour éviter conflit avec la méthode parent
-     */
+    public function update(UpdateReportRequest $request, string $id): JsonResponse
+    {
+        $report = $this->reports->find($id);
+
+        Gate::authorize('update', $report);
+
+        $data = $request->validated();
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $data['file_path'] = $this->fileStorage->store($file, "reports/{$report->intern_id}");
+            $data['file_name'] = $file->getClientOriginalName();
+            $data['file_size'] = $file->getSize();
+        }
+
+        $updated = $this->updateReportAction->execute($report, $data);
+
+        return response()->json([
+            'success' => true,
+            'data' => new ReportResource($updated),
+        ]);
+    }
+
+    public function destroy(string $id): JsonResponse
+    {
+        $report = $this->reports->find($id);
+
+        Gate::authorize('delete', $report);
+
+        $this->hideReportAction->execute($report);
+
+        return response()->json([
+            'success' => true,
+            'data' => ['message' => 'Rapport masqué de votre historique.'],
+        ]);
+    }
+
     public function validateReport(ValidateReportRequest $request, string $id): JsonResponse
     {
         $report = $this->reports->find($id);

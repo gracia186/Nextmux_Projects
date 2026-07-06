@@ -55,15 +55,16 @@ class StatsService
     }
 
     public function documentStats(): array
-    {
-        return [
-            'total' => Document::count(),
-            'pending' => Document::where('status', DocumentStatus::Pending->value)->count(),
-            'approved' => Document::where('status', DocumentStatus::Approved->value)->count(),
-            'rejected' => Document::where('status', DocumentStatus::Rejected->value)->count(),
-            'generated' => Document::where('status', DocumentStatus::Generated->value)->count(),
-        ];
-    }
+{
+    return [
+        'total' => Document::count(),
+        'pending' => Document::where('status', DocumentStatus::Pending->value)->count(),
+        'mentor_approved' => Document::where('status', DocumentStatus::MentorApproved->value)->count(),
+        'mentor_rejected' => Document::where('status', DocumentStatus::MentorRejected->value)->count(),
+        'admin_rejected' => Document::where('status', DocumentStatus::AdminRejected->value)->count(),
+        'completed' => Document::where('status', DocumentStatus::Completed->value)->count(),
+    ];
+}
 
     private function averageAttendanceRate(): float
     {

@@ -17,9 +17,13 @@ internship_id = None
 project_id = None
 task_id = None
 report_id = None
+report_id_2 = None
 document_id = None
 event_id = None
 attendance_id = None
+
+DUMMY_PDF = b"%PDF-1.4\n%mock pdf content for testing\n%%EOF"
+
 
 def test(nom, methode, url, data=None, headers=None, attendu=None):
     h = {**HEADERS}
@@ -42,19 +46,51 @@ def test(nom, methode, url, data=None, headers=None, attendu=None):
         resultats.append({"nom": nom, "ok": False, "status": 0, "url": url})
         return None
 
+
+def test_multipart(nom, methode, url, files=None, data=None, headers=None, attendu=None):
+    """Pour les endpoints qui reçoivent des fichiers (multipart/form-data)."""
+    h = {"Accept": "application/json"}
+    if headers:
+        h.update(headers)
+    try:
+        resp = getattr(requests, methode)(
+            f"{BASE_URL}{url}", data=data, files=files, headers=h, timeout=15
+        )
+        ok = resp.status_code in (attendu or [200, 201])
+        status = "✅ PASS" if ok else "❌ FAIL"
+        print(f"{status} [{resp.status_code}] {methode.upper()} {url}")
+        if not ok:
+            try:
+                print(f"       Erreur: {json.dumps(resp.json(), ensure_ascii=False, indent=2)[:400]}")
+            except:
+                print(f"       Body: {resp.text[:200]}")
+        resultats.append({"nom": nom, "ok": ok, "status": resp.status_code, "url": url})
+        return resp
+    except Exception as e:
+        print(f"💥 ERREUR [{methode.upper()} {url}] : {e}")
+        resultats.append({"nom": nom, "ok": False, "status": 0, "url": url})
+        return None
+
+
 def auth(token):
     return {"Authorization": f"Bearer {token}"}
 
+
 def tinker(cmd):
+    """Version validée par test_tinker.py — sans shell=True, avec marqueurs
+    précis au lieu d'un filtre approximatif sur des mots-clés d'erreur."""
+    marker = "###R###"
+    full_code = f"echo '{marker}'; {cmd} echo '{marker}';"
     result = subprocess.run(
-        ["php", "artisan", "tinker", "--execute", cmd],
-        capture_output=True, text=True, cwd="F:\\nextmux-backend",
-        shell=True
+        ["php", "artisan", "tinker", "--execute", full_code],
+        capture_output=True, text=True, cwd="F:\\nextmux-backend"
     )
-    output = result.stdout.strip()
-    if 'Exception' in output or 'Error' in output:
-        return ""
-    return output.split('\n')[-1].strip().strip('"')
+    output = result.stdout
+    parts = output.split(marker)
+    if len(parts) >= 3:
+        return parts[1].strip()
+    return ""
+
 
 print("\n" + "="*60)
 print("   NEXTMUX — TEST AUTOMATIQUE DES ROUTES API")
@@ -85,22 +121,28 @@ test("Invitation token invalide", "get", "/auth/invitation/TOKENINVALIDE",
 
 # ============================================================
 # LOGIN MENTOR ET INTERN
+# On part de l'Internship qui a un mentor_id, pas de User::internship()
+# — cette relation n'existe pas sur le modèle User (BadMethodCallException
+# confirmée). On déduit intern et mentor depuis Internship.
 # ============================================================
 print("\n── LOGIN MENTOR ET STAGIAIRE ───────────────────────────")
 
-mentor_email = tinker("echo App\\\\Models\\\\User::where('role','mentor')->first()?->email;")
-mentor_id_raw = tinker("echo App\\\\Models\\\\User::where('role','mentor')->first()?->id;")
+internship_id = tinker("echo App\\Models\\Internship::whereNotNull('mentor_id')->first()?->id;")
+intern_id = tinker(f"echo App\\Models\\Internship::find('{internship_id}')?->intern_id;") if internship_id else ""
+mentor_id = tinker(f"echo App\\Models\\Internship::find('{internship_id}')?->mentor_id;") if internship_id else ""
+
+intern_email = tinker(f"echo App\\Models\\User::find('{intern_id}')?->email;") if intern_id else ""
+mentor_email = tinker(f"echo App\\Models\\User::find('{mentor_id}')?->email;") if mentor_id else ""
+
 if mentor_email:
     r = test("Login Mentor", "post", "/auth/login",
         data={"email": mentor_email, "password": "password"})
     if r and r.status_code == 200:
         token_mentor = r.json()["data"]["token"]
         mentor_id = r.json()["data"]["user"]["id"]
-        print(f"   → Token mentor obtenu")
-
-intern_email = tinker("echo App\\\\Models\\\\User::where('role','intern')->first()?->email;")
-intern_id = tinker("echo App\\\\Models\\\\User::where('role','intern')->first()?->id;")
-internship_id = tinker(f"echo App\\\\Models\\\\Internship::where('intern_id','{intern_id}')->first()?->id;")
+        print(f"   → Token mentor obtenu (assigné au stage testé)")
+else:
+    print("   ⚠ Aucun mentor assigné à ce stage — les tests mentor seront ignorés")
 
 if intern_email:
     r = test("Login Intern", "post", "/auth/login",
@@ -108,6 +150,8 @@ if intern_email:
     if r and r.status_code == 200:
         token_intern = r.json()["data"]["token"]
         print(f"   → Token intern obtenu")
+else:
+    print("   ⚠ Email intern vide — vérifier internship_id/intern_id via tinker manuel")
 
 # ============================================================
 # ME
@@ -173,7 +217,7 @@ if token_admin:
     test("Stats documents", "get", "/admin/stats/documents", headers=auth(token_admin))
 
 # ============================================================
-# ATTENDANCE — NOUVEAU MODULE
+# ATTENDANCE
 # ============================================================
 print("\n── ATTENDANCE ──────────────────────────────────────────")
 
@@ -181,35 +225,32 @@ today = datetime.now().strftime("%Y-%m-%d")
 tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
 
 if token_intern:
-    # Test présence normale
     r = test("Pointer présence (present)", "post", "/attendance",
         data={"status": "present", "arrival_time": "08:30"},
         headers=auth(token_intern))
     if r and r.status_code == 201:
         attendance_id = r.json()["data"]["id"]
 
-    # Test double pointage (doit échouer)
     test("Double pointage (doit échouer)", "post", "/attendance",
         data={"status": "present"},
         headers=auth(token_intern), attendu=[422, 409])
 
-    # Test retard SANS motif (doit échouer)
     test("Retard sans motif (doit échouer)", "post", "/attendance",
         data={"status": "late", "date": tomorrow},
         headers=auth(token_intern), attendu=[422])
 
-    # Test absence justifiée SANS motif (doit échouer)
     test("Absence justifiée sans motif (doit échouer)", "post", "/attendance",
         data={"status": "absent_justified", "date": tomorrow},
         headers=auth(token_intern), attendu=[422])
 
-    # Test historique
     test("Historique présences", "get", "/attendance", headers=auth(token_intern))
 
-    # Test départ
     if attendance_id:
-        test("Signaler départ", "post", f"/attendance/{attendance_id}/departure",
-            headers=auth(token_intern), attendu=[200, 404])
+        test("Signaler départ", "patch", f"/attendance/{attendance_id}/departure",
+            headers=auth(token_intern), attendu=[200])
+
+        test("Signaler départ deux fois (doit échouer)", "patch", f"/attendance/{attendance_id}/departure",
+            headers=auth(token_intern), attendu=[409])
 
 if token_admin:
     test("Dashboard présences (admin)", "get", "/attendance/dashboard",
@@ -229,10 +270,59 @@ if intern_id and token_admin:
 print("\n── REPORTS ─────────────────────────────────────────────")
 
 if token_intern:
-    test("Liste rapports", "get", "/reports", headers=auth(token_intern))
+    files = {"file": ("rapport.pdf", DUMMY_PDF, "application/pdf")}
+    data = {
+        "type": "weekly",
+        "period_start": today,
+        "period_end": today,
+    }
+    r = test_multipart("Soumettre rapport", "post", "/reports",
+        files=files, data=data, headers=auth(token_intern))
+    if r and r.status_code == 201:
+        report_id = r.json()["data"]["id"]
+
+    r2 = test_multipart("Soumettre 2e rapport", "post", "/reports",
+        files={"file": ("rapport2.pdf", DUMMY_PDF, "application/pdf")},
+        data={"type": "weekly", "period_start": today, "period_end": today},
+        headers=auth(token_intern))
+    if r2 and r2.status_code == 201:
+        report_id_2 = r2.json()["data"]["id"]
+
+    test("Liste rapports (intern)", "get", "/reports", headers=auth(token_intern))
+
+    if report_id:
+        test("Détail rapport", "get", f"/reports/{report_id}", headers=auth(token_intern))
+        test("Modifier rapport pending", "patch", f"/reports/{report_id}",
+            data={"type": "monthly"}, headers=auth(token_intern))
 
 if token_mentor:
-    test("Rapports en attente", "get", "/reports/pending", headers=auth(token_mentor))
+    test("Rapports en attente (mentor)", "get", "/reports/pending", headers=auth(token_mentor))
+    test("Liste complète rapports (mentor)", "get", "/reports", headers=auth(token_mentor))
+
+    if report_id:
+        r = test("Valider rapport (mentor)", "post", f"/reports/{report_id}/validate",
+            data={"status": "validated", "mentor_comment": "RAS"},
+            headers=auth(token_mentor))
+
+if token_intern and report_id:
+    test("Modifier rapport déjà validé (doit échouer)", "patch", f"/reports/{report_id}",
+        data={"type": "monthly"}, headers=auth(token_intern), attendu=[403])
+
+if token_intern and report_id_2:
+    test("Masquer rapport (delete)", "delete", f"/reports/{report_id_2}",
+        headers=auth(token_intern))
+
+    r = test("Liste rapports après masquage", "get", "/reports", headers=auth(token_intern))
+    if r and r.status_code == 200:
+        ids_visibles = [rep["id"] for rep in r.json()["data"]]
+        if report_id_2 not in ids_visibles:
+            print("   ✅ Rapport bien masqué de la liste du stagiaire")
+        else:
+            print("   ❌ ALERTE : le rapport masqué apparaît encore dans la liste du stagiaire")
+
+if token_mentor and report_id_2:
+    r = test("Mentor voit toujours le rapport masqué", "get", f"/reports/{report_id_2}",
+        headers=auth(token_mentor))
 
 # ============================================================
 # PROJECTS
@@ -306,12 +396,29 @@ if token_intern:
 
     test("Mes documents", "get", "/documents", headers=auth(token_intern))
 
-if token_admin:
-    test("Documents en attente", "get", "/documents/pending", headers=auth(token_admin))
+if token_mentor:
+    test("Documents en attente (mentor)", "get", "/documents/pending", headers=auth(token_mentor))
 
     if document_id:
-        test("Approuver document", "post", f"/documents/{document_id}/approve",
-            headers=auth(token_admin))
+        test("Mentor valide la demande", "post", f"/documents/{document_id}/mentor-validate",
+            data={"status": "approved"}, headers=auth(token_mentor))
+
+if token_admin:
+    test("Documents validés par mentor (admin)", "get", "/admin/documents/pending",
+        headers=auth(token_admin))
+
+    if document_id:
+        files = {"file": ("attestation.pdf", DUMMY_PDF, "application/pdf")}
+        test_multipart("Admin téléverse le fichier final", "post", f"/documents/{document_id}/upload",
+            files=files, headers=auth(token_admin))
+
+if token_intern and document_id:
+    test("Télécharger document complété", "get", f"/documents/{document_id}/download",
+        headers=auth(token_intern))
+
+if token_intern and document_id:
+    test("Stagiaire tente mentor-validate (doit échouer)", "post", f"/documents/{document_id}/mentor-validate",
+        data={"status": "approved"}, headers=auth(token_intern), attendu=[403])
 
 # ============================================================
 # EVENTS
@@ -334,13 +441,19 @@ if token_admin:
 
     if event_id:
         test("Détail événement", "get", f"/events/{event_id}", headers=auth(token_admin))
-        test("Modifier événement", "patch", f"/events/{event_id}",
+        test("Modifier événement (admin)", "patch", f"/events/{event_id}",
             data={"title": "Réunion Modifiée"}, headers=auth(token_admin))
 
 if token_mentor:
     test("Mentor publie événement (doit échouer)", "post", "/events",
         data={"title": "Test", "content": "Test", "audience": "all"},
         headers=auth(token_mentor), attendu=[403])
+
+    if event_id:
+        test("Mentor modifie événement admin (doit échouer)", "patch", f"/events/{event_id}",
+            data={"title": "Hack"}, headers=auth(token_mentor), attendu=[403])
+        test("Mentor supprime événement admin (doit échouer)", "delete", f"/events/{event_id}",
+            headers=auth(token_mentor), attendu=[403])
 
 if token_intern:
     test("Liste événements (stagiaire)", "get", "/events", headers=auth(token_intern))

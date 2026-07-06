@@ -9,9 +9,9 @@ use Illuminate\Validation\Rule;
 class PublishEventRequest extends FormRequest
 {
     public function authorize(): bool
-    {
-        return $this->user()->isMentor() || $this->user()->isAdmin();
-    }
+{
+    return $this->user()->isAdmin();
+}
 
     public function rules(): array
     {

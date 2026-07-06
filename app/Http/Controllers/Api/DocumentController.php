@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Actions\Document\AdminProcessDocumentAction;
 use App\Actions\Document\GetSecureDocumentUrlAction;
+use App\Actions\Document\MentorValidateDocumentAction;
 use App\Actions\Document\RequestDocumentAction;
-use App\Actions\Document\ValidateDocumentRequestAction;
 use App\DTOs\DocumentRequestData;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Document\ApproveDocumentRequest;
+use App\Http\Requests\Document\MentorValidateDocumentRequest;
 use App\Http\Requests\Document\RejectDocumentRequest;
 use App\Http\Requests\Document\RequestDocumentRequest;
+use App\Http\Requests\Document\UploadDocumentRequest;
 use App\Http\Resources\DocumentResource;
 use App\Repositories\Contracts\DocumentRepositoryInterface;
 use App\Repositories\Contracts\InternshipRepositoryInterface;
@@ -20,7 +22,8 @@ class DocumentController extends Controller
 {
     public function __construct(
         private RequestDocumentAction $requestDocumentAction,
-        private ValidateDocumentRequestAction $validateDocumentAction,
+        private MentorValidateDocumentAction $mentorValidateAction,
+        private AdminProcessDocumentAction $adminProcessAction,
         private GetSecureDocumentUrlAction $getSecureUrlAction,
         private DocumentRepositoryInterface $documents,
         private InternshipRepositoryInterface $internships,
@@ -30,7 +33,6 @@ class DocumentController extends Controller
     public function store(RequestDocumentRequest $request): JsonResponse
     {
         $user = auth()->user();
-
         $internship = $this->internships->findActiveByIntern($user->id);
 
         if (! $internship) {
@@ -60,9 +62,9 @@ class DocumentController extends Controller
     {
         $user = auth()->user();
 
-        $documents = $user->isAdmin()
-            ? $this->documents->pending()
-            : $this->documents->forIntern($user->id);
+        $documents = $user->isIntern()
+            ? $this->documents->forIntern($user->id)
+            : $this->documents->pending();
 
         return response()->json([
             'success' => true,
@@ -72,9 +74,11 @@ class DocumentController extends Controller
 
     public function pending(): JsonResponse
     {
-        Gate::authorize('validate', \App\Models\Document::class);
+        if (! auth()->user()->isMentor()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
 
-        $documents = $this->documents->pending();
+        $documents = $this->documents->pendingForMentor(auth()->id());
 
         return response()->json([
             'success' => true,
@@ -82,13 +86,41 @@ class DocumentController extends Controller
         ]);
     }
 
-    public function approve(ApproveDocumentRequest $request, string $id): JsonResponse
+    public function adminPending(): JsonResponse
+    {
+        Gate::authorize('processAsAdmin', \App\Models\Document::class);
+
+        $documents = $this->documents->pendingForAdmin();
+
+        return response()->json([
+            'success' => true,
+            'data' => DocumentResource::collection($documents),
+        ]);
+    }
+
+    public function mentorValidate(MentorValidateDocumentRequest $request, string $id): JsonResponse
     {
         $document = $this->documents->find($id);
 
-        Gate::authorize('validate', $document);
+        Gate::authorize('mentorValidate', $document);
 
-        $updated = $this->validateDocumentAction->execute($document, auth()->id());
+        $updated = $request->validated('status') === 'approved'
+            ? $this->mentorValidateAction->approve($document, auth()->id())
+            : $this->mentorValidateAction->reject($document, auth()->id(), $request->validated('rejection_reason'));
+
+        return response()->json([
+            'success' => true,
+            'data' => new DocumentResource($updated),
+        ]);
+    }
+
+    public function upload(UploadDocumentRequest $request, string $id): JsonResponse
+    {
+        $document = $this->documents->find($id);
+
+        Gate::authorize('processAsAdmin', \App\Models\Document::class);
+
+        $updated = $this->adminProcessAction->upload($document, auth()->id(), $request->file('file'));
 
         return response()->json([
             'success' => true,
@@ -100,9 +132,9 @@ class DocumentController extends Controller
     {
         $document = $this->documents->find($id);
 
-        Gate::authorize('validate', $document);
+        Gate::authorize('processAsAdmin', \App\Models\Document::class);
 
-        $updated = $this->validateDocumentAction->reject(
+        $updated = $this->adminProcessAction->reject(
             $document,
             auth()->id(),
             $request->validated('rejection_reason')

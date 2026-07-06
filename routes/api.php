@@ -58,7 +58,9 @@ Route::prefix('v1')->group(function () {
             Route::get('/', 'index');
             Route::get('pending', 'pending');
             Route::get('{id}', 'show');
-            Route::post('{id}/validate', 'validateReport'); // ← RENOMMÉ
+            Route::patch('{id}', 'update');
+            Route::delete('{id}', 'destroy');
+            Route::post('{id}/validate', 'validateReport');
             Route::get('{id}/download', 'download');
         });
 
@@ -86,13 +88,15 @@ Route::prefix('v1')->group(function () {
         });
 
         Route::prefix('documents')->controller(DocumentController::class)->group(function () {
-            Route::post('request', 'store'); // ← AJOUTÉ store
-            Route::get('/', 'index');
-            Route::get('pending', 'pending');
-            Route::post('{id}/approve', 'approve');
-            Route::post('{id}/reject', 'reject');
-            Route::get('{id}/download', 'download');
-        });
+    Route::post('request', 'store');
+    Route::get('/', 'index');
+    Route::get('pending', 'pending');
+    Route::post('{id}/mentor-validate', 'mentorValidate');
+    Route::post('{id}/upload', 'upload');
+    Route::post('{id}/reject', 'reject');
+    Route::get('{id}/download', 'download');
+});
+     
 
         Route::prefix('events')->controller(EventController::class)->group(function () {
             Route::post('/', 'store');
@@ -114,6 +118,9 @@ Route::prefix('v1')->group(function () {
                 Route::delete('{id}/purge', 'purge');
                 Route::post('{id}/resend-invitation', 'resendInvitation');
             });
+            Route::prefix('documents')->controller(DocumentController::class)->group(function () {
+    Route::get('pending', 'adminPending');
+});
 
             Route::prefix('internships')->controller(AdminInternshipController::class)->group(function () {
                 Route::patch('{internId}/dates', 'updateDates');

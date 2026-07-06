@@ -22,7 +22,6 @@ class DocumentRepository implements DocumentRepositoryInterface
     public function update(Document $document, array $data): Document
     {
         $document->update($data);
-
         return $document->fresh();
     }
 
@@ -41,9 +40,26 @@ class DocumentRepository implements DocumentRepositoryInterface
             ->get();
     }
 
+    public function pendingForMentor(string $mentorId): Collection
+    {
+        return Document::whereHas('internship', fn ($q) => $q->where('mentor_id', $mentorId))
+            ->where('status', DocumentStatus::Pending->value)
+            ->with(['intern', 'internship'])
+            ->orderBy('requested_at', 'asc')
+            ->get();
+    }
+
+    public function pendingForAdmin(): Collection
+    {
+        return Document::where('status', DocumentStatus::MentorApproved->value)
+            ->with(['intern', 'internship', 'mentor'])
+            ->orderBy('mentor_validated_at', 'asc')
+            ->get();
+    }
+
     public function nextDocumentNumber(int $year): string
     {
-        $count = Document::whereYear('generated_at', $year)
+        $count = Document::whereYear('uploaded_at', $year)
             ->whereNotNull('document_number')
             ->count();
 

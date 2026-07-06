@@ -3,6 +3,7 @@
 namespace App\Actions\Report;
 
 use App\DTOs\ReportData;
+use App\Enums\ReportStatus;
 use App\Models\Report;
 use App\Notifications\ReportSubmittedNotification;
 use App\Repositories\Contracts\ReportRepositoryInterface;
@@ -29,6 +30,7 @@ class SubmitReportAction
             'intern_id' => $data->internId,
             'internship_id' => $data->internshipId,
             'type' => $data->type->value,
+            'status' => ReportStatus::Pending->value,
             'period_start' => $data->periodStart,
             'period_end' => $data->periodEnd,
             'file_path' => $path,

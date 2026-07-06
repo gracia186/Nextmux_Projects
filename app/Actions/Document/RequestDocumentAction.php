@@ -4,18 +4,14 @@ namespace App\Actions\Document;
 
 use App\DTOs\DocumentRequestData;
 use App\Models\Document;
-use App\Models\User;
 use App\Notifications\DocumentRequestedNotification;
 use App\Repositories\Contracts\DocumentRepositoryInterface;
-use App\Repositories\Contracts\UserRepositoryInterface;
-use App\Enums\UserRole;
 use Illuminate\Support\Str;
 
 class RequestDocumentAction
 {
     public function __construct(
         private DocumentRepositoryInterface $documents,
-        private UserRepositoryInterface $users,
     ) {
     }
 
@@ -30,12 +26,10 @@ class RequestDocumentAction
             'requested_at' => now(),
         ]);
 
-        $document->loadMissing('intern');
+        $document->loadMissing('internship.mentor');
 
-        $admins = $this->users->paginate(100, ['role' => UserRole::Admin->value]);
-
-        foreach ($admins as $admin) {
-            $admin->notify(new DocumentRequestedNotification($document));
+        if ($document->internship->mentor) {
+            $document->internship->mentor->notify(new DocumentRequestedNotification($document));
         }
 
         return $document;

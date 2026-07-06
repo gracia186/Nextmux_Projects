@@ -23,13 +23,22 @@ class ReportRepository implements ReportRepositoryInterface
     public function update(Report $report, array $data): Report
     {
         $report->update($data);
-
         return $report->fresh();
     }
 
     public function paginateForIntern(string $internId, int $perPage = 15): LengthAwarePaginator
     {
         return Report::where('intern_id', $internId)
+            ->whereNull('hidden_by_intern_at')
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+    }
+
+    public function paginateForMentor(string $mentorId, int $perPage = 15): LengthAwarePaginator
+    {
+        return Report::whereHas('internship', function ($query) use ($mentorId) {
+            $query->where('mentor_id', $mentorId);
+        })
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
     }

@@ -16,7 +16,7 @@ class GetSecureDocumentUrlAction
 
     public function execute(Document $document): string
     {
-        if ($document->status !== DocumentStatus::Generated || ! $document->file_path) {
+        if ($document->status !== DocumentStatus::Completed || ! $document->file_path) {
             throw new UnauthorizedDocumentAccessException(
                 'Ce document n\'est pas encore disponible au téléchargement.'
             );

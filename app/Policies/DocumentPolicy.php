@@ -14,15 +14,24 @@ class DocumentPolicy
 
     public function view(User $user, Document $document): bool
     {
-        return $user->isAdmin() || $document->intern_id === $user->id;
-    }
-
-    public function validate(User $user, Document $document = null): bool
-    {
-        if ($document === null) {
-            return $user->isAdmin();
+        if ($user->isAdmin()) {
+            return true;
         }
 
+        if ($document->intern_id === $user->id) {
+            return true;
+        }
+
+        return $user->isMentor() && $document->internship?->mentor_id === $user->id;
+    }
+
+    public function mentorValidate(User $user, Document $document): bool
+    {
+        return $user->isMentor() && $document->internship?->mentor_id === $user->id;
+    }
+
+    public function processAsAdmin(User $user): bool
+    {
         return $user->isAdmin();
     }
 

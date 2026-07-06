@@ -19,6 +19,7 @@ class Document extends Model
     protected $fillable = [
         'intern_id',
         'internship_id',
+        'mentor_id',
         'type',
         'status',
         'request_note',
@@ -26,9 +27,10 @@ class Document extends Model
         'file_path',
         'document_number',
         'requested_at',
+        'mentor_validated_at',
         'reviewed_by',
         'reviewed_at',
-        'generated_at',
+        'uploaded_at',
     ];
 
     protected function casts(): array
@@ -37,8 +39,9 @@ class Document extends Model
             'type' => DocumentType::class,
             'status' => DocumentStatus::class,
             'requested_at' => 'datetime',
+            'mentor_validated_at' => 'datetime',
             'reviewed_at' => 'datetime',
-            'generated_at' => 'datetime',
+            'uploaded_at' => 'datetime',
         ];
     }
 
@@ -50,6 +53,11 @@ class Document extends Model
     public function internship(): BelongsTo
     {
         return $this->belongsTo(Internship::class);
+    }
+
+    public function mentor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'mentor_id');
     }
 
     public function reviewedBy(): BelongsTo

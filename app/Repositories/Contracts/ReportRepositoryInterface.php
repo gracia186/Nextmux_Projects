@@ -16,6 +16,8 @@ interface ReportRepositoryInterface
 
     public function paginateForIntern(string $internId, int $perPage = 15): LengthAwarePaginator;
 
+    public function paginateForMentor(string $mentorId, int $perPage = 15): LengthAwarePaginator;
+
     public function pendingForMentor(string $mentorId): Collection;
 
     public function paginate(int $perPage = 15): LengthAwarePaginator;

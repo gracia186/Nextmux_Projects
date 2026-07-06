@@ -17,5 +17,9 @@ interface DocumentRepositoryInterface
 
     public function pending(): Collection;
 
+    public function pendingForMentor(string $mentorId): Collection;
+
+    public function pendingForAdmin(): Collection;
+
     public function nextDocumentNumber(int $year): string;
 }

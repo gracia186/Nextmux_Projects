@@ -5,7 +5,8 @@ namespace App\Enums;
 enum DocumentStatus: string
 {
     case Pending = 'pending';
-    case Approved = 'approved';
-    case Rejected = 'rejected';
-    case Generated = 'generated';
+    case MentorApproved = 'mentor_approved';
+    case MentorRejected = 'mentor_rejected';
+    case AdminRejected = 'admin_rejected';
+    case Completed = 'completed';
 }
