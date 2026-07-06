@@ -86,11 +86,12 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'success' => true,
-            'data' => [
-                'name' => $user->name,
-                'email' => $user->email,
-            ],
-        ]);
+    'success' => true,
+    'data' => [
+        'name' => $user->name,
+        'email' => $user->email,
+        'role' => $user->role,
+    ],
+]);
     }
 }
