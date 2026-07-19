@@ -26,9 +26,9 @@ class InvitationNotification extends Notification implements ShouldQueue
         $url = config('app.frontend_url').'/invitation?token='.$this->rawToken;
 
         return (new MailMessage)
-            ->subject('Bienvenue sur NEXTMUX — Activez votre compte')
+            ->subject('Bienvenue sur STAMUX — Activez votre compte')
             ->greeting('Bonjour '.$notifiable->name.' !')
-            ->line('Un compte a été créé pour vous sur la plateforme NEXTMUX.')
+            ->line('Un compte a été créé pour vous sur la plateforme STAMUX.')
             ->action('Activer mon compte', $url)
             ->line('Ce lien expire dans 72 heures.')
             ->line('Si vous n\'attendiez pas cet email, ignorez-le simplement.');
@@ -38,7 +38,7 @@ class InvitationNotification extends Notification implements ShouldQueue
     {
         return [
             'type' => 'invitation',
-            'message' => 'Votre compte NEXTMUX a été créé. Cliquez pour l\'activer.',
+            'message' => 'Votre compte STAMUX a été créé. Cliquez pour l\'activer.',
         ];
     }
 }

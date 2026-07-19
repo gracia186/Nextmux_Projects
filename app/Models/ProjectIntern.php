@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Str;
 
 class ProjectIntern extends Pivot
 {
@@ -14,6 +15,7 @@ class ProjectIntern extends Pivot
     protected $table = 'project_intern';
 
     protected $fillable = [
+        'id',
         'project_id',
         'intern_id',
         'assigned_at',
@@ -21,6 +23,15 @@ class ProjectIntern extends Pivot
         'evaluation_comment',
         'evaluated_at',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $pivot): void {
+            if (empty($pivot->id)) {
+                $pivot->id = (string) Str::uuid();
+            }
+        });
+    }
 
     protected function casts(): array
     {

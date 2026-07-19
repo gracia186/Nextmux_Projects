@@ -15,6 +15,7 @@ class InternshipFeedback extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
+        'id',
         'intern_id',
         'internship_id',
         'welcome_rating',

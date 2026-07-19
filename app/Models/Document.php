@@ -17,6 +17,7 @@ class Document extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
+        'id',
         'intern_id',
         'internship_id',
         'mentor_id',
