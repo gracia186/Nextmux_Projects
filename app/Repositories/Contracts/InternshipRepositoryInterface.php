@@ -18,4 +18,8 @@ interface InternshipRepositoryInterface
     public function update(Internship $internship, array $data): Internship;
 
     public function internsByMentor(string $mentorId): Collection;
+
+    public function allActive(): Collection;
+
+    public function all(): Collection;
 }

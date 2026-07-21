@@ -53,6 +53,13 @@ return Application::configure(basePath: dirname(__DIR__))
             ], 422);
         });
 
+        $exceptions->render(function (\App\Exceptions\OutsideAllowedLocationException $e) {
+            return response()->json([
+                'success' => false,
+                'error' => ['code' => 'OUTSIDE_ALLOWED_LOCATION', 'message' => $e->getMessage()],
+            ], 422);
+        });
+
         $exceptions->render(function (\App\Exceptions\InternNotAssignedToMentorException $e) {
             return response()->json([
                 'success' => false,
@@ -86,6 +93,14 @@ return Application::configure(basePath: dirname(__DIR__))
                 'success' => false,
                 'error' => ['code' => 'UNAUTHORIZED', 'message' => 'Action non autorisée.'],
             ], 403);
+        });
+        
+        
+        $exceptions->render(function (\App\Exceptions\PermissionAlreadyReviewedException $e) {
+            return response()->json([
+                'success' => false,
+                'error' => ['code' => 'PERMISSION_ALREADY_REVIEWED', 'message' => $e->getMessage()],
+            ], 422);
         });
 
         $exceptions->render(function (\Illuminate\Validation\ValidationException $e) {

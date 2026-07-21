@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Actions\Attendance\GetAttendanceDashboardAction;
 use App\Actions\Attendance\RecordAttendanceAction;
 use App\DTOs\AttendanceData;
-use App\Enums\AttendanceStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Attendance\RecordAttendanceRequest;
 use App\Http\Resources\AttendanceResource;
 use App\Repositories\Contracts\AttendanceRepositoryInterface;
 use App\Repositories\Contracts\InternshipRepositoryInterface;
+use App\Services\FileStorageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Gate;
 
@@ -21,6 +21,7 @@ class AttendanceController extends Controller
         private GetAttendanceDashboardAction $getDashboardAction,
         private AttendanceRepositoryInterface $attendances,
         private InternshipRepositoryInterface $internships,
+        private FileStorageService $fileStorage,
     ) {
     }
 
@@ -41,12 +42,15 @@ class AttendanceController extends Controller
         }
 
         $validated = $request->validated();
-        $status = AttendanceStatus::from($validated['status']);
+
+        $lateProofPath = $request->hasFile('late_proof')
+            ? $this->fileStorage->store($request->file('late_proof'), 'attendance-proofs')
+            : null;
 
         $data = AttendanceData::fromArray(array_merge($validated, [
             'intern_id' => $user->id,
             'internship_id' => $internship->id,
-            'arrival_time' => $status !== AttendanceStatus::Absent ? now() : null,
+            'late_proof_path' => $lateProofPath,
         ]));
 
         $attendance = $this->recordAttendanceAction->execute($data);

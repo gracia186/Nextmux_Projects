@@ -16,7 +16,7 @@ class TaskPolicy
 
     public function view(User $user, Task $task): bool
     {
-        $task->loadMissing('project');
+        $task->loadMissing('project', 'interns');
 
         if ($user->isAdmin()) {
             return true;
@@ -26,18 +26,21 @@ class TaskPolicy
             return $task->project->mentor_id === $user->id;
         }
 
-        return $task->assigned_to === $user->id;
+        return $task->interns->contains('id', $user->id);
+    }
+
+    public function update(User $user, Task $task): bool
+    {
+        $task->loadMissing('project');
+
+        return $user->isMentor() && $task->project->mentor_id === $user->id;
     }
 
     public function updateStatus(User $user, Task $task): bool
     {
-        $task->loadMissing('project');
+        $task->loadMissing('interns');
 
-        if ($user->isMentor()) {
-            return $task->project->mentor_id === $user->id;
-        }
-
-        return $user->isIntern() && $task->assigned_to === $user->id;
+        return $user->isIntern() && $task->interns->contains('id', $user->id);
     }
 
     public function delete(User $user, Task $task): bool

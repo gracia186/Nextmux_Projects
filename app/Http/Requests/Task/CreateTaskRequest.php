@@ -16,7 +16,8 @@ class CreateTaskRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:2000'],
-            'assigned_to' => ['nullable', 'uuid', 'exists:users,id'],
+            'intern_ids' => ['required', 'array', 'min:1'],
+            'intern_ids.*' => ['uuid', 'exists:users,id'],
             'due_date' => ['nullable', 'date', 'after_or_equal:today'],
         ];
     }
@@ -24,6 +25,7 @@ class CreateTaskRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'intern_ids.required' => 'Sélectionnez au moins un stagiaire pour cette tâche.',
             'due_date.after_or_equal' => 'La date d\'échéance ne peut pas être dans le passé.',
         ];
     }

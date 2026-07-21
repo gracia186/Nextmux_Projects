@@ -14,6 +14,8 @@ use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\TaskController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\PermissionController;
+use App\Http\Controllers\Api\InternshipController;
 
 Route::prefix('v1')->group(function () {
 
@@ -43,6 +45,13 @@ Route::prefix('v1')->group(function () {
         Route::prefix('feedback')->controller(InternshipFeedbackController::class)->group(function () {
             Route::post('/', 'store');
         });
+        
+        Route::prefix('internships')->controller(InternshipController::class)->group(function () {
+            Route::post('/', 'store');
+            Route::get('/', 'index');
+            Route::get('{id}', 'show');
+            Route::post('{id}/terminate', 'terminate');
+        });
 
         Route::prefix('attendance')->controller(AttendanceController::class)->group(function () {
             Route::post('/', 'store');
@@ -51,6 +60,13 @@ Route::prefix('v1')->group(function () {
             Route::get('{internId}', 'byIntern');
             Route::patch('{id}/departure', 'recordDeparture');
             Route::patch('{id}', 'correct');
+        });
+        
+        Route::prefix('permissions')->controller(PermissionController::class)->group(function () {
+            Route::post('/', 'store');
+            Route::get('/', 'history');
+            Route::get('pending', 'pending');
+            Route::post('{id}/review', 'review');
         });
 
         Route::prefix('reports')->controller(ReportController::class)->group(function () {
@@ -118,6 +134,10 @@ Route::prefix('v1')->group(function () {
                 Route::delete('{id}/purge', 'purge');
                 Route::post('{id}/resend-invitation', 'resendInvitation');
             });
+
+            Route::prefix('internship-feedbacks')->controller(\App\Http\Controllers\Api\InternshipFeedbackController::class)->group(function () {
+                Route::get('/', 'index');
+            });Route::patch('{id}/my-status', 'updateMyStatus');
             Route::prefix('documents')->controller(DocumentController::class)->group(function () {
     Route::get('pending', 'adminPending');
 });

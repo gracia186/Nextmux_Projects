@@ -10,7 +10,7 @@ class TaskRepository implements TaskRepositoryInterface
 {
     public function find(string $id): ?Task
     {
-        return Task::find($id);
+        return Task::with('interns')->find($id);
     }
 
     public function create(array $data): Task
@@ -28,15 +28,17 @@ class TaskRepository implements TaskRepositoryInterface
     public function byProject(string $projectId): Collection
     {
         return Task::where('project_id', $projectId)
-            ->with('assignedTo')
+            ->with('interns', 'createdBy')
             ->orderBy('created_at', 'desc')
             ->get();
     }
 
     public function byIntern(string $internId): Collection
     {
-        return Task::where('assigned_to', $internId)
-            ->with('project')
+        return Task::whereHas('interns', function ($query) use ($internId) {
+            $query->where('intern_id', $internId);
+        })
+            ->with('project', 'interns')
             ->orderBy('due_date', 'asc')
             ->get();
     }

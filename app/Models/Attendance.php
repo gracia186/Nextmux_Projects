@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Enums\AttendanceStatus;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Attendance extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     public $incrementing = false;
 
@@ -24,6 +25,11 @@ class Attendance extends Model
         'recorded_by',
         'arrival_time',
         'departure_time',
+        'latitude',
+        'longitude',
+        'late_reason',
+        'late_proof_path',
+        'absence_reason',
     ];
 
     protected function casts(): array
@@ -33,6 +39,8 @@ class Attendance extends Model
             'status' => AttendanceStatus::class,
             'arrival_time' => 'datetime',
             'departure_time' => 'datetime',
+            'latitude' => 'float',
+            'longitude' => 'float',
         ];
     }
 

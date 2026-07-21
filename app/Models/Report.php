@@ -4,13 +4,14 @@ namespace App\Models;
 
 use App\Enums\ReportStatus;
 use App\Enums\ReportType;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Report extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     public $incrementing = false;
 
@@ -29,6 +30,7 @@ class Report extends Model
         'mentor_comment',
         'validated_by',
         'validated_at',
+        'hidden_by_intern_at',
     ];
 
     protected function casts(): array
@@ -39,6 +41,7 @@ class Report extends Model
             'type' => ReportType::class,
             'status' => ReportStatus::class,
             'validated_at' => 'datetime',
+            'hidden_by_intern_at' => 'datetime',
         ];
     }
 

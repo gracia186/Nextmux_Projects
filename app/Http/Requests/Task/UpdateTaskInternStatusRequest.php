@@ -6,11 +6,11 @@ use App\Enums\TaskStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateTaskStatusRequest extends FormRequest
+class UpdateTaskInternStatusRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->isMentor() || $this->user()->isIntern();
+        return $this->user()->isIntern();
     }
 
     public function rules(): array

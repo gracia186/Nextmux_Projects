@@ -47,4 +47,14 @@ class InternshipRepository implements InternshipRepositoryInterface
             ->where('status', InternshipStatus::Active->value)
             ->get();
     }
+
+    public function allActive(): Collection
+    {
+        return Internship::where('status', InternshipStatus::Active->value)->get();
+    }
+
+    public function all(): Collection
+    {
+        return Internship::with(['intern', 'mentor'])->orderBy('created_at', 'desc')->get();
+    }
 }

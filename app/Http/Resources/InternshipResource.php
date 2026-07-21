@@ -17,10 +17,7 @@ class InternshipResource extends JsonResource
             'end_date' => $this->end_date->toDateString(),
             'duration_days' => $this->duration_days,
             'status' => $this->status->value,
-            'termination_reason' => $this->when(
-                $request->user()?->isAdmin(),
-                $this->termination_reason
-            ),
+            'termination_reason' => $this->termination_reason,
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

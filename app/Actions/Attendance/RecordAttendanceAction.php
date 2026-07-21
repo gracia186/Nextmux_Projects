@@ -3,12 +3,16 @@
 namespace App\Actions\Attendance;
 
 use App\DTOs\AttendanceData;
+use App\Enums\AttendanceStatus;
 use App\Exceptions\AttendanceAlreadyRecordedException;
 use App\Exceptions\InternshipNotActiveException;
+use App\Exceptions\OutsideAllowedLocationException;
 use App\Models\Attendance;
 use App\Repositories\Contracts\AttendanceRepositoryInterface;
 use App\Repositories\Contracts\InternshipRepositoryInterface;
 use App\Services\AttendanceService;
+use App\Services\GeolocationService;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 
 class RecordAttendanceAction
@@ -17,6 +21,7 @@ class RecordAttendanceAction
         private AttendanceRepositoryInterface $attendances,
         private InternshipRepositoryInterface $internships,
         private AttendanceService $attendanceService,
+        private GeolocationService $geolocation,
     ) {
     }
 
@@ -32,16 +37,37 @@ class RecordAttendanceAction
             throw new AttendanceAlreadyRecordedException('Une présence a déjà été enregistrée pour cette date.');
         }
 
+        if (! $this->geolocation->isWithinAllowedRadius($data->latitude, $data->longitude)) {
+            throw new OutsideAllowedLocationException(
+                'Vous n\'êtes pas à l\'endroit indiqué pour marquer votre présence.'
+            );
+        }
+
+        $arrivalTime = $data->arrivalTime ?? now()->format('H:i');
+        $status = $this->resolveStatus($arrivalTime);
+
         return $this->attendances->create([
             'id' => (string) Str::uuid(),
             'intern_id' => $data->internId,
             'internship_id' => $data->internshipId,
             'date' => $data->date,
-            'status' => $data->status->value,
+            'status' => $status->value,
             'note' => $data->note,
+            'arrival_time' => $arrivalTime,
+            'latitude' => $data->latitude,
+            'longitude' => $data->longitude,
+            'late_reason' => $status === AttendanceStatus::Late ? $data->lateReason : null,
+            'late_proof_path' => $status === AttendanceStatus::Late ? $data->lateProofPath : null,
+            'absence_reason' => $data->absenceReason,
             'recorded_by' => $data->recordedBy,
-            'arrival_time' => $data->arrivalTime,
-            'departure_time' => $data->departureTime,
         ]);
+    }
+
+    private function resolveStatus(string $arrivalTime): AttendanceStatus
+    {
+        $cutoff = Carbon::createFromFormat('H:i', config('attendance.presence_cutoff'));
+        $arrival = Carbon::createFromFormat('H:i', substr($arrivalTime, 0, 5));
+
+        return $arrival->gt($cutoff) ? AttendanceStatus::Late : AttendanceStatus::Present;
     }
 }

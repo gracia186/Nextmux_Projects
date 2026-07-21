@@ -13,12 +13,20 @@ class TaskResource extends JsonResource
             'id' => $this->id,
             'project_id' => $this->project_id,
             'created_by' => new UserResource($this->whenLoaded('createdBy')),
-            'assigned_to' => new UserResource($this->whenLoaded('assignedTo')),
             'title' => $this->title,
             'description' => $this->description,
-            'status' => $this->status->value,
             'due_date' => $this->due_date?->toDateString(),
-            'completed_at' => $this->completed_at?->toIso8601String(),
+            'interns' => $this->whenLoaded('interns', function () {
+                return $this->interns->map(function ($intern) {
+                    return [
+                        'id' => $intern->id,
+                        'name' => $intern->name,
+                        'email' => $intern->email,
+                        'status' => $intern->pivot->status->value,
+                        'completed_at' => $intern->pivot->completed_at?->toIso8601String(),
+                    ];
+                });
+            }),
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

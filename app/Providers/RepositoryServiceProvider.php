@@ -23,6 +23,8 @@ use App\Repositories\ReportRepository;
 use App\Repositories\TaskRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Support\ServiceProvider;
+use App\Repositories\Contracts\PermissionRepositoryInterface;
+use App\Repositories\PermissionRepository;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -38,5 +40,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(EventRepositoryInterface::class, EventRepository::class);
         $this->app->bind(AuditLogRepositoryInterface::class, AuditLogRepository::class);
         $this->app->bind(InternshipFeedbackRepositoryInterface::class, InternshipFeedbackRepository::class);
+        $this->app->bind(PermissionRepositoryInterface::class, PermissionRepository::class);
     }
 }

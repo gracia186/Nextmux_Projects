@@ -16,7 +16,25 @@ class InternshipFeedbackController extends Controller
     public function __construct(
         private SubmitInternshipFeedbackAction $submitFeedbackAction,
         private InternshipRepositoryInterface $internships,
+        private \App\Repositories\Contracts\InternshipFeedbackRepositoryInterface $internshipFeedbacks,
     ) {
+    }
+
+    public function index(): JsonResponse
+    {
+        if (! auth()->user()->isAdmin()) {
+            return response()->json([
+                'success' => false,
+                'error' => ['code' => 'UNAUTHORIZED', 'message' => 'Action non autorisée.'],
+            ], 403);
+        }
+
+        $feedbacks = $this->internshipFeedbacks->all();
+
+        return response()->json([
+            'success' => true,
+            'data' => InternshipFeedbackResource::collection($feedbacks),
+        ]);
     }
 
     public function store(SubmitInternshipFeedbackRequest $request): JsonResponse

@@ -9,7 +9,7 @@ final readonly class TaskData
     public function __construct(
         public string $projectId,
         public string $createdBy,
-        public ?string $assignedTo,
+        public array $internIds,
         public string $title,
         public ?string $description,
         public ?Carbon $dueDate,
@@ -21,7 +21,7 @@ final readonly class TaskData
         return new self(
             projectId: $data['project_id'],
             createdBy: $data['created_by'],
-            assignedTo: $data['assigned_to'] ?? null,
+            internIds: $data['intern_ids'] ?? [],
             title: $data['title'],
             description: $data['description'] ?? null,
             dueDate: isset($data['due_date']) ? Carbon::parse($data['due_date']) : null,

@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Actions\Task\CreateTaskAction;
-use App\Actions\Task\UpdateTaskStatusAction;
+use App\Actions\Task\UpdateTaskInternStatusAction;
 use App\DTOs\TaskData;
+use App\DTOs\UpdateTaskInternStatusData;
 use App\Enums\TaskStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Task\CreateTaskRequest;
-use App\Http\Requests\Task\UpdateTaskStatusRequest;
+use App\Http\Requests\Task\UpdateTaskInternStatusRequest;
 use App\Http\Resources\TaskResource;
 use App\Repositories\Contracts\TaskRepositoryInterface;
 use Illuminate\Http\JsonResponse;
@@ -18,7 +19,7 @@ class TaskController extends Controller
 {
     public function __construct(
         private CreateTaskAction $createTaskAction,
-        private UpdateTaskStatusAction $updateTaskStatusAction,
+        private UpdateTaskInternStatusAction $updateTaskInternStatusAction,
         private TaskRepositoryInterface $tasks,
     ) {
     }
@@ -64,12 +65,11 @@ class TaskController extends Controller
     {
         $task = $this->tasks->find($id);
 
-        $this->authorize('updateStatus', $task);
+        $this->authorize('update', $task);
 
         $validated = $request->validate([
             'title' => ['sometimes', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:2000'],
-            'assigned_to' => ['nullable', 'uuid', 'exists:users,id'],
             'due_date' => ['nullable', 'date'],
         ]);
 
@@ -81,19 +81,28 @@ class TaskController extends Controller
         ]);
     }
 
-    public function updateStatus(UpdateTaskStatusRequest $request, string $id): JsonResponse
+    public function updateMyStatus(UpdateTaskInternStatusRequest $request, string $id): JsonResponse
     {
         $task = $this->tasks->find($id);
 
         $this->authorize('updateStatus', $task);
 
-        $newStatus = TaskStatus::from($request->validated('status'));
+        $data = new UpdateTaskInternStatusData(
+            taskId: $task->id,
+            internId: auth()->id(),
+            status: TaskStatus::from($request->validated('status')),
+        );
 
-        $updated = $this->updateTaskStatusAction->execute($task, $newStatus, auth()->user());
+        $updated = $this->updateTaskInternStatusAction->execute($data);
 
         return response()->json([
             'success' => true,
-            'data' => new TaskResource($updated),
+            'data' => [
+                'task_id' => $updated->task_id,
+                'intern_id' => $updated->intern_id,
+                'status' => $updated->status->value,
+                'completed_at' => $updated->completed_at?->toIso8601String(),
+            ],
         ]);
     }
 
