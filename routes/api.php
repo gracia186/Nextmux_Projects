@@ -99,7 +99,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('tasks')->controller(TaskController::class)->group(function () {
             Route::get('{id}', 'show');
             Route::patch('{id}', 'update');
-            Route::patch('{id}/status', 'updateStatus');
+            Route::patch('{id}/my-status', 'updateMyStatus');
             Route::delete('{id}', 'destroy');
         });
 
@@ -137,7 +137,7 @@ Route::prefix('v1')->group(function () {
 
             Route::prefix('internship-feedbacks')->controller(\App\Http\Controllers\Api\InternshipFeedbackController::class)->group(function () {
                 Route::get('/', 'index');
-            });Route::patch('{id}/my-status', 'updateMyStatus');
+            });
             Route::prefix('documents')->controller(DocumentController::class)->group(function () {
     Route::get('pending', 'adminPending');
 });
