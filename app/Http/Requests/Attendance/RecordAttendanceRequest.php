@@ -13,11 +13,13 @@ class RecordAttendanceRequest extends FormRequest
 
     public function rules(): array
     {
+        $isLate = now()->format('H:i') > config('attendance.presence_cutoff');
+
         return [
             'date' => ['sometimes', 'date', 'before_or_equal:today'],
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
-            'late_reason' => ['nullable', 'string', 'max:500'],
+            'late_reason' => [$isLate ? 'required' : 'nullable', 'string', 'max:500'],
             'late_proof' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ];
     }
@@ -28,6 +30,7 @@ class RecordAttendanceRequest extends FormRequest
             'date.before_or_equal' => 'Impossible de pointer une date future.',
             'latitude.required' => 'La localisation est requise pour pointer.',
             'longitude.required' => 'La localisation est requise pour pointer.',
+            'late_reason.required' => 'Vous êtes en retard, merci d\'indiquer le motif.',
             'late_proof.mimes' => 'Le justificatif doit être une image ou un PDF.',
             'late_proof.max' => 'Le justificatif ne doit pas dépasser 5 Mo.',
         ];
