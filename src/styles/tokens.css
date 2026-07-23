@@ -1,0 +1,201 @@
+/* ============================================================
+   STAMUX — Design tokens
+   Palette héritée du brief (bleu #2563EB / indigo #4F46E5),
+   déclinée en verre dépoli (glassmorphism) avec halos "ring".
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lexend:wght@600;700;800&display=swap');
+
+:root {
+  color-scheme: dark;
+
+  /* Marque */
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-light: #60a5fa;
+  --secondary: #4f46e5;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #f43f5e;
+
+  --gradient-brand: linear-gradient(135deg, #3b82f6 0%, #6366f1 55%, #8b5cf6 100%);
+  --gradient-mesh:
+    radial-gradient(60% 50% at 12% 8%, rgba(59, 130, 246, 0.35), transparent 60%),
+    radial-gradient(50% 45% at 92% 12%, rgba(139, 92, 246, 0.28), transparent 60%),
+    radial-gradient(60% 60% at 50% 100%, rgba(16, 185, 129, 0.12), transparent 60%);
+
+  /* Fond — l'app vit sur un dégradé sombre profond, le verre flotte dessus */
+  --bg-0: #05070f;
+  --bg-1: #0a0f1e;
+  --bg-2: #0e1526;
+
+  /* Verre (glassmorphism) */
+  --glass-bg: rgba(18, 25, 45, 0.55);
+  --glass-bg-strong: rgba(22, 30, 54, 0.72);
+  --glass-border: rgba(148, 163, 184, 0.14);
+  --glass-border-hover: rgba(148, 163, 184, 0.26);
+  --glass-blur: blur(20px);
+  --glass-highlight: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 40%);
+
+  --text: #eef2f9;
+  --text-muted: #98a2b8;
+  --text-faint: #5f6b83;
+
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(2, 6, 20, 0.35);
+  --shadow-lg: 0 24px 60px rgba(2, 6, 20, 0.55);
+  --shadow-glow: 0 0 0 1px rgba(96, 165, 250, 0.15), 0 8px 30px rgba(37, 99, 235, 0.25);
+
+  --sidebar-w: 272px;
+  --sidebar-w-collapsed: 84px;
+  --header-h: 76px;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+* { box-sizing: border-box; }
+html { color-scheme: dark; }
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background:
+    var(--gradient-mesh),
+    linear-gradient(180deg, var(--bg-0), var(--bg-1) 40%, var(--bg-2));
+  background-attachment: fixed;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4 { font-family: 'Lexend', 'Inter', sans-serif; margin: 0; letter-spacing: -0.02em; }
+p { margin: 0; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+ul { list-style: none; margin: 0; padding: 0; }
+img { max-width: 100%; display: block; }
+
+/* ---------- Focus ring signature ---------- */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg-1), 0 0 0 4px var(--primary-light), 0 0 20px rgba(96, 165, 250, 0.45);
+  border-radius: 10px;
+  transition: box-shadow .18s var(--ease);
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.25); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.4); }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ---------- Glass primitive ---------- */
+.glass {
+  position: relative;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  transition: border-color .2s var(--ease), box-shadow .2s var(--ease), transform .2s var(--ease);
+}
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--glass-highlight);
+  pointer-events: none;
+  opacity: .6;
+}
+.glass:hover { border-color: var(--glass-border-hover); }
+
+.glass-strong { background: var(--glass-bg-strong); }
+
+/* ---------- Ring on interactive hover (signature micro-interaction) ---------- */
+.ring-hover {
+  position: relative;
+  isolation: isolate;
+}
+.ring-hover::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--gradient-brand);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity .25s var(--ease);
+  z-index: -1;
+  pointer-events: none;
+}
+.ring-hover:hover::after,
+.ring-hover:focus-within::after { opacity: 1; }
+
+/* ---------- Lazy reveal (scroll/entry animation) ---------- */
+@keyframes lazy-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.lazy-in {
+  animation: lazy-rise .55s var(--ease) both;
+  animation-delay: calc(var(--lazy-i, 0) * 60ms);
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, rgba(148,163,184,.08) 0%, rgba(148,163,184,.18) 50%, rgba(148,163,184,.08) 100%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lazy-in { animation: none; }
+  .skeleton { animation: none; }
+  * { transition-duration: 0.001ms !important; }
+}
+
+/* ============================================================
+   Thème clair — mêmes tokens, valeurs inversées.
+   Le glassmorphism reste : verre clair sur fond clair dégradé.
+   ============================================================ */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --gradient-mesh:
+    radial-gradient(60% 50% at 12% 8%, rgba(59, 130, 246, 0.16), transparent 60%),
+    radial-gradient(50% 45% at 92% 12%, rgba(139, 92, 246, 0.14), transparent 60%),
+    radial-gradient(60% 60% at 50% 100%, rgba(16, 185, 129, 0.08), transparent 60%);
+
+  --bg-0: #eef2fb;
+  --bg-1: #f5f7fd;
+  --bg-2: #ffffff;
+
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-bg-strong: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(15, 23, 42, 0.08);
+  --glass-border-hover: rgba(15, 23, 42, 0.16);
+  --glass-highlight: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 40%);
+
+  --text: #0f1729;
+  --text-muted: #5b6478;
+  --text-faint: #94a0b8;
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.14);
+}
+:root[data-theme='light'] html { color-scheme: light; }
